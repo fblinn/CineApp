@@ -8,6 +8,9 @@ import {
   StyleSheet,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/AppNavigator';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { eliminarPelicula, cambiarEstadoPelicula } from '@/redux/slices/peliculasSlice';
 import { Pelicula } from '@/types/pelicula';
@@ -15,7 +18,9 @@ import PeliculaFila from '@/components/PeliculaFila';
 import FormularioPeliculaScreen from './FormularioPeliculaScreen';
 import { colors, radius, spacing, typography } from '@/theme';
 
-export default function PeliculasScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, 'GestionPeliculas'>;
+
+export default function PeliculasScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const peliculas = useAppSelector((state) => state.peliculas.lista);
 
@@ -69,9 +74,17 @@ export default function PeliculasScreen() {
         onChangeText={setBusqueda}
       />
 
-      <TouchableOpacity style={styles.botonAgregar} onPress={abrirAgregar}>
-        <Text style={styles.botonAgregarTexto}>+ Agregar película</Text>
-      </TouchableOpacity>
+      <View style={styles.filaBotones}>
+        <TouchableOpacity style={[styles.botonAgregar, styles.botonMitad]} onPress={abrirAgregar}>
+          <Text style={styles.botonAgregarTexto}>+ Agregar película</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.botonSecundarioAncho, styles.botonMitad]}
+          onPress={() => navigation.navigate('CrearFuncion')}
+        >
+          <Text style={styles.botonSecundarioAnchoTexto}>+ Crear función</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={peliculasFiltradas}
@@ -136,11 +149,6 @@ export default function PeliculasScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    flex: 1,                  
-    justifyContent: 'center', 
-    alignItems: 'center',     
-  },
   contenedor: {
     flex: 1,
     backgroundColor: colors.bgBase,
@@ -151,14 +159,12 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.hero,
     fontWeight: '700',
-    textAlign: 'center',
   },
   subtitulo: {
     color: colors.textMuted,
     fontSize: typography.small,
     marginTop: 2,
     marginBottom: spacing.md,
-    textAlign: 'center',
   },
   buscador: {
     backgroundColor: colors.bgElevated,
@@ -177,6 +183,27 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     marginBottom: spacing.md,
+  },
+  filaBotones: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  botonMitad: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  botonSecundarioAncho: {
+    borderRadius: radius.sm,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  botonSecundarioAnchoTexto: {
+    color: colors.textPrimary,
+    fontWeight: '700',
+    fontSize: typography.small,
   },
   botonAgregarTexto: {
     color: '#fff',

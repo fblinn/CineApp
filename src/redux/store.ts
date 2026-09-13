@@ -3,7 +3,7 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 
 import peliculasReducer from "@/redux/slices/peliculasSlice";
 //import reservasReducer from "@/redux/slices/reservasSlice";
-//import salasReducer from "@/redux/slices/salasSlice";
+import salasReducer from "@/redux/slices/salasSlice";
 //import asientosReducer from "@/redux/slices/asientoSlice";
 
 import { persistReducer, persistStore } from "redux-persist";
@@ -12,7 +12,7 @@ import storage from "redux-persist/lib/storage";
 const rootReducer = combineReducers({
   peliculas: peliculasReducer,
   //reservas: reservasReducer,
-  //salas: salasReducer,
+  salas: salasReducer,
   //asientos: asientosReducer,
 });
 

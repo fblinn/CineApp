@@ -16,9 +16,12 @@ import FormularioPeliculaScreen from './FormularioPeliculaScreen';
 import { colors, radius, spacing, typography } from '@/theme';
 import PeliculaCard from '@/components/PeliculaCard'; 
 import PeliculasScreen from './PeliculasScreen';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/AppNavigator';
 
+type Props = NativeStackScreenProps<RootStackParamList, 'Catalogo'>;
 
-export default function IndexScreen({ onIrAPeliculas }: { onIrAPeliculas: () => void }) {
+export default function IndexScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
   const peliculas = useAppSelector((state) => state.peliculas.lista);
 
@@ -55,7 +58,7 @@ export default function IndexScreen({ onIrAPeliculas }: { onIrAPeliculas: () => 
         onChangeText={setBusqueda}
       />
 
-      <TouchableOpacity style={styles.botonSiguiente} onPress={onIrAPeliculas}>
+      <TouchableOpacity style={styles.botonSiguiente} onPress={() => navigation.navigate('GestionPeliculas')}>
         <Text>Vista de admin</Text>
       </TouchableOpacity>
 
