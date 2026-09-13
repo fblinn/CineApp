@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Pelicula } from '@/types/pelicula';
-import { peliculas } from '@/data/peliculas';
+import { peliculas as peliculasMock } from '@/data/peliculasMock';
 import type { RootState } from '@/redux/store';
 
 // Estado que almacena la lista de pelis
@@ -10,7 +10,7 @@ interface PeliculasState {
 
 // Estado inicial cargado con los datos predefinidos
 const initialState: PeliculasState = {
-  lista: peliculas,
+  lista: peliculasMock,
 };
 
 // Slice de Redux que administra las operaciones sobre las pelis

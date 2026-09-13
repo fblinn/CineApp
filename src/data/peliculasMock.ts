@@ -1,6 +1,9 @@
 import { Pelicula } from '@/types/pelicula';
 
-// Para probar el modulo
+// Para probar el modulo.
+//el poster de estas películas NO va en posterImage (ese campo es
+// solo para imágenes elegidas por el usuario desde la galería, con require()
+// no se puede usar dinámicamente). El poster de estas 15 sale de posterMap.ts,
 export const peliculas: Pelicula[] = [
   {
     id: '1',
@@ -12,7 +15,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 1',
     precio: 5.5,
     estado: 'disponible',
-    posterImage: '/image/aven.jpg',
   },
   {
     id: '2',
@@ -24,7 +26,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 2',
     precio: 5.0,
     estado: 'disponible',
-    posterImage: '/image/spider.jpg',
   },
   {
     id: '3',
@@ -36,7 +37,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 3',
     precio: 5.25,
     estado: 'disponible',
-    posterImage: '/image/inter.jpg',
   },
   {
     id: '4',
@@ -48,7 +48,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 4',
     precio: 4.5,
     estado: 'disponible',
-    posterImage: '/image/titan.jpg',
   },
   {
     id: '5',
@@ -60,7 +59,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 1',
     precio: 4.0,
     estado: 'disponible',
-    posterImage: '/image/yat.jpg',
   },
   {
     id: '6',
@@ -72,7 +70,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 2',
     precio: 4.75,
     estado: 'disponible',
-    posterImage: '/image/conjuro.jpg',
   },
   {
     id: '7',
@@ -84,7 +81,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 5',
     precio: 3.75,
     estado: 'disponible',
-    posterImage: '/image/ts4.jpg',
   },
   {
     id: '8',
@@ -96,7 +92,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 5',
     precio: 3.5,
     estado: 'disponible',
-    posterImage: '/image/shrek.jpg',
   },
   {
     id: '9',
@@ -108,7 +103,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 3',
     precio: 5.0,
     estado: 'disponible',
-    posterImage: '/image/jurass.jpg',
   },
   {
     id: '10',
@@ -120,7 +114,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 4',
     precio: 4.0,
     estado: 'no disponible',
-    posterImage: '/image/froz.jpg',
   },
   {
     id: '11',
@@ -132,7 +125,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 2',
     precio: 4.75,
     estado: 'disponible',
-    posterImage: '/image/jok.jpg',
   },
   {
     id: '12',
@@ -144,7 +136,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 1',
     precio: 5.25,
     estado: 'disponible',
-    posterImage: '/image/rf.jpg',
   },
   {
     id: '13',
@@ -156,7 +147,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 5',
     precio: 4.5,
     estado: 'disponible',
-    posterImage: '/image/int2.jpg',
   },
   {
     id: '14',
@@ -168,7 +158,6 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 3',
     precio: 5.5,
     estado: 'disponible',
-    posterImage: '/image/open.jpg',
   },
   {
     id: '15',
@@ -180,6 +169,5 @@ export const peliculas: Pelicula[] = [
     salaAsignada: 'Sala 4',
     precio: 5.75,
     estado: 'disponible',
-    posterImage: '/image/avatar.jpg',
   },
 ];
