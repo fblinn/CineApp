@@ -56,7 +56,7 @@ export default function PeliculasScreen() {
 
   return (
     <View style={styles.contenedor}>
-      <Text style={styles.titulo}>Gestión de Películas</Text>
+      <Text style={styles.titulo}>CineFlix </Text>
       <Text style={styles.subtitulo}>
         {peliculasFiltradas.length} de {peliculas.length} películas
       </Text>
