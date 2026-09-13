@@ -8,12 +8,13 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Picker } from '@react-native-picker/picker';
+//import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { agregarFuncion, selectSalas, selectHorarioOcupadoEnSala } from '@/redux/slices/salasSlice';
+import SelectorModal from '@/components/SelectorModal';
 import { colors, radius, spacing, typography } from '@/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CrearFuncion'>;
@@ -140,7 +141,7 @@ export default function CrearFuncionScreen({ navigation }: Props) {
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.titulo}>Crear función</Text>
         <Text style={styles.subtitulo}>
-          Asigna una sala, fecha y hora para una película en cartelera
+          Asigna una sala, fecha y hora
         </Text>
 
         {error !== '' && (
@@ -149,43 +150,25 @@ export default function CrearFuncionScreen({ navigation }: Props) {
           </View>
         )}
 
-        <View style={styles.campo}>
-          <Text style={styles.etiqueta}>Película</Text>
-          <View style={styles.pickerBox}>
-            <Picker
-              selectedValue={peliculaId}
-              onValueChange={(valor) => {
-                setPeliculaId(valor);
-                setError('');
-              }}
-              dropdownIconColor={colors.textPrimary}
-              style={styles.picker}
-            >
-              {peliculasDisponibles.map((p) => (
-                <Picker.Item key={p.id} label={p.nombre} value={p.id} color={colors.textPrimary} />
-              ))}
-            </Picker>
-          </View>
-        </View>
+        <SelectorModal
+          etiqueta="Película"
+          opciones={peliculasDisponibles.map((p) => ({ id: p.id, etiqueta: p.nombre }))}
+          valorSeleccionado={peliculaId}
+          onSeleccionar={(id) => {
+            setPeliculaId(id);
+            setError('');
+          }}
+        />
 
-        <View style={styles.campo}>
-          <Text style={styles.etiqueta}>Sala</Text>
-          <View style={styles.pickerBox}>
-            <Picker
-              selectedValue={salaId}
-              onValueChange={(valor) => {
-                setSalaId(valor);
-                setError('');
-              }}
-              dropdownIconColor={colors.textPrimary}
-              style={styles.picker}
-            >
-              {salas.map((s) => (
-                <Picker.Item key={s.id} label={s.nombre} value={s.id} color={colors.textPrimary} />
-              ))}
-            </Picker>
-          </View>
-        </View>
+        <SelectorModal
+          etiqueta="Sala"
+          opciones={salas.map((s) => ({ id: s.id, etiqueta: s.nombre }))}
+          valorSeleccionado={salaId}
+          onSeleccionar={(id) => {
+            setSalaId(id);
+            setError('');
+          }}
+        />
 
         <View style={styles.campo}>
           <Text style={styles.etiqueta}>Fecha</Text>
