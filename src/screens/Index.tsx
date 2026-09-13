@@ -14,6 +14,7 @@ import { Pelicula } from '@/types/pelicula';
 import PeliculaFila from '@/components/PeliculaFila';
 import FormularioPeliculaScreen from './FormularioPeliculaScreen';
 import { colors, radius, spacing, typography } from '@/theme';
+import PeliculaCard from '@/components/PeliculaCard';
 
 export default function IndexScreen() {
   const dispatch = useAppDispatch();
@@ -37,23 +38,6 @@ export default function IndexScreen() {
     );
   }, [peliculas, busqueda]);
 
-  const abrirAgregar = () => {
-    setPeliculaEditar(null);
-    setFormularioVisible(true);
-  };
-
-  const abrirEditar = (pelicula: Pelicula) => {
-    setPeliculaEditar(pelicula);
-    setFormularioVisible(true);
-  };
-
-  const confirmarEliminar = () => {
-    if (peliculaEliminar) {
-      dispatch(eliminarPelicula(peliculaEliminar.id));
-    }
-    setPeliculaEliminar(null);
-  };
-
   return (
     <View style={styles.contenedor}>
       <Text style={styles.titulo}>CineFlix </Text>
@@ -69,31 +53,18 @@ export default function IndexScreen() {
         onChangeText={setBusqueda}
       />
 
-      <TouchableOpacity style={styles.botonAgregar} onPress={abrirAgregar}>
-        <Text style={styles.botonAgregarTexto}>+ Agregar película</Text>
-      </TouchableOpacity>
-
       <FlatList
         data={peliculasFiltradas}
         keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={{ gap: spacing.sm, paddingHorizontal: spacing.sm }}
         renderItem={({ item }) => (
-          <PeliculaFila
+            <PeliculaCard
             pelicula={item}
-            onEditar={abrirEditar}
-            onEliminar={setPeliculaEliminar}
             onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
-          />
+            />
         )}
-        ListEmptyComponent={
-          <View style={styles.vacio}>
-            <Text style={styles.vacioTitulo}>No hay películas que coincidan</Text>
-            <Text style={styles.vacioTexto}>
-              Ajusta la búsqueda o agrega una nueva película.
-            </Text>
-          </View>
-        }
-        contentContainerStyle={peliculasFiltradas.length === 0 && styles.listaVacia}
-      />
+        />
 
       <FormularioPeliculaScreen
         visible={formularioVisible}
@@ -123,9 +94,6 @@ export default function IndexScreen() {
                 onPress={() => setPeliculaEliminar(null)}
               >
                 <Text style={styles.botonSecundarioTexto}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.botonPeligro} onPress={confirmarEliminar}>
-                <Text style={styles.botonPrimarioTexto}>Eliminar</Text>
               </TouchableOpacity>
             </View>
           </View>
