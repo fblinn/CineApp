@@ -136,6 +136,11 @@ export default function PeliculasScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    flex: 1,                  
+    justifyContent: 'center', 
+    alignItems: 'center',     
+  },
   contenedor: {
     flex: 1,
     backgroundColor: colors.bgBase,
@@ -146,12 +151,14 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.hero,
     fontWeight: '700',
+    textAlign: 'center',
   },
   subtitulo: {
     color: colors.textMuted,
     fontSize: typography.small,
     marginTop: 2,
     marginBottom: spacing.md,
+    textAlign: 'center',
   },
   buscador: {
     backgroundColor: colors.bgElevated,
