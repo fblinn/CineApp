@@ -14,7 +14,8 @@ import { Pelicula } from '@/types/pelicula';
 import PeliculaFila from '@/components/PeliculaFila';
 import FormularioPeliculaScreen from './FormularioPeliculaScreen';
 import { colors, radius, spacing, typography } from '@/theme';
-import PeliculaCard from '@/components/PeliculaCard';
+import PeliculaCard from '@/components/PeliculaCard'; 
+import { Link } from 'expo-router';
 
 export default function IndexScreen() {
   const dispatch = useAppDispatch();
@@ -52,6 +53,13 @@ export default function IndexScreen() {
         value={busqueda}
         onChangeText={setBusqueda}
       />
+
+      <TouchableOpacity
+        style={styles.botonSiguiente}
+        onPress={() => navigation.navigate('PeliculasScreen')}
+      >
+        <Text>Texto del botón</Text>
+      </TouchableOpacity>
 
       <FlatList
         data={peliculasFiltradas}
@@ -129,6 +137,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buscador: {
+    backgroundColor: colors.bgElevated,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: radius.sm,
+    paddingVertical: 10,
+    paddingHorizontal: spacing.md,
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    marginBottom: spacing.sm,
+  },
+  botonSiguiente:{
     backgroundColor: colors.bgElevated,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
