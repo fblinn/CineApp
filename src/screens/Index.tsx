@@ -15,14 +15,12 @@ import PeliculaFila from '@/components/PeliculaFila';
 import FormularioPeliculaScreen from './FormularioPeliculaScreen';
 import { colors, radius, spacing, typography } from '@/theme';
 import PeliculaCard from '@/components/PeliculaCard'; 
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PeliculasScreen from './PeliculasScreen';
 
 
 export default function IndexScreen({ onIrAPeliculas }: { onIrAPeliculas: () => void }) {
   const dispatch = useAppDispatch();
   const peliculas = useAppSelector((state) => state.peliculas.lista);
-  const Stack = createNativeStackNavigator();
 
   const [busqueda, setBusqueda] = useState('');
   const [formularioVisible, setFormularioVisible] = useState(false);
@@ -58,7 +56,7 @@ export default function IndexScreen({ onIrAPeliculas }: { onIrAPeliculas: () => 
       />
 
       <TouchableOpacity style={styles.botonSiguiente} onPress={onIrAPeliculas}>
-        <Text>Texto del botón</Text>
+        <Text>Vista de admin</Text>
       </TouchableOpacity>
 
       <FlatList
