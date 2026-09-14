@@ -4,8 +4,6 @@ export interface Funcion {
   salaId: string;
   fecha: string; // "YYYY-MM-DD"
   hora: string; // "HH:MM"
-  formato: '2D' | '3D';
-  idioma: 'Sub' | 'Dob';
 }
 
 export type FuncionFormData = Omit<Funcion, 'id'>;

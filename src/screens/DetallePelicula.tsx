@@ -61,7 +61,7 @@ export default function DetallePeliculas({ route }: Props) {
         renderItem={({ item }) => (
           <View style={styles.funcionItem}>
             <Text style={styles.funcionTexto}>
-              {item.hora} · {item.formato} · {item.idioma}
+              {item.hora}
             </Text>
             <Text style={styles.funcionSala}>{item.salaId}</Text>
           </View>

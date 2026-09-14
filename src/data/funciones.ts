@@ -21,19 +21,17 @@ interface FuncionSemilla {
   peliculaNombre: string;
   salaId: string;
   hora: Funcion ['hora']; // "HH:MM" 24h
-  formato: Funcion['formato'];
-  idioma: Funcion['idioma'];
 }
 
 //Datos de funciones precargadas
 //idealmente deberian de trabajar con el ID pero por practicidad mejor
 //usaremos solo el nombre de las pelis
 const funcionesSemilla: FuncionSemilla[] = [
-  { peliculaNombre: 'Avengers: Endgame', salaId: SALA_2, hora: '15:00', formato: '2D', idioma: 'Sub' },
-  { peliculaNombre: 'Avengers: Endgame', salaId: SALA_3, hora: '19:00', formato: '3D', idioma: 'Dob' },
-  { peliculaNombre: 'Titanic', salaId: SALA_1, hora: '20:00', formato: '2D', idioma: 'Sub' },
-  { peliculaNombre: 'Oppenheimer', salaId: SALA_1, hora: '20:00', formato: '2D', idioma: 'Dob' },
-  { peliculaNombre: 'Avatar: El camino del agua', salaId: SALA_4, hora: '18:00', formato: '3D', idioma: 'Sub' },
+  { peliculaNombre: 'Avengers: Endgame', salaId: SALA_2, hora: '15:00' },
+  { peliculaNombre: 'Avengers: Endgame', salaId: SALA_3, hora: '19:00' },
+  { peliculaNombre: 'Titanic', salaId: SALA_1, hora: '20:00' },
+  { peliculaNombre: 'Oppenheimer', salaId: SALA_1, hora: '20:00' },
+  { peliculaNombre: 'Avatar: El camino del agua', salaId: SALA_4, hora: '18:00' },
 ];
 
 export const funciones: Funcion[] = funcionesSemilla
@@ -47,8 +45,6 @@ export const funciones: Funcion[] = funcionesSemilla
       salaId: f.salaId,
       fecha: hoy,
       hora: f.hora,
-      formato: f.formato,
-      idioma: f.idioma,
     };
   })
   .filter((f): f is Funcion => f !== null);
