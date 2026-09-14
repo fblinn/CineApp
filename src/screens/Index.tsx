@@ -74,40 +74,6 @@ export default function IndexScreen({ navigation }: Props) {
             />
         )}
         />
-
-      <FormularioPeliculaScreen
-        visible={formularioVisible}
-        peliculaEditar={peliculaEditar}
-        onClose={() => setFormularioVisible(false)}
-      />
-
-      {/* Confirmación de eliminar */}
-      <Modal
-        visible={peliculaEliminar !== null}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setPeliculaEliminar(null)}
-      >
-        <View style={styles.confirmOverlay}>
-          <View style={styles.confirmTarjeta}>
-            <Text style={styles.confirmTitulo}>Eliminar película</Text>
-            <Text style={styles.confirmTexto}>
-              ¿Seguro que quieres eliminar{' '}
-              <Text style={styles.confirmNombre}>{peliculaEliminar?.nombre}</Text>? Esta
-              acción no se puede deshacer.
-            </Text>
-
-            <View style={styles.confirmAcciones}>
-              <TouchableOpacity
-                style={styles.botonSecundario}
-                onPress={() => setPeliculaEliminar(null)}
-              >
-                <Text style={styles.botonSecundarioTexto}>Cancelar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
