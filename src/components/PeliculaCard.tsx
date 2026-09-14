@@ -7,15 +7,16 @@ import { posterMap } from '@/data/posterMap';
 
 interface Props {
   pelicula: Pelicula;
-  onToggleEstado?: (id: string) => void; 
+  onToggleEstado?: (id: string) => void;
+  onPress: () => void;
 }
 
-export default function PeliculaCard({ pelicula, onToggleEstado }: Props) {
+export default function PeliculaCard({ pelicula, onToggleEstado, onPress }: Props) {
   const disponible = pelicula.estado === 'disponible';
   const inicial = pelicula.nombre.charAt(0).toUpperCase();
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       {pelicula.posterImage ? (
         <Image source={{ uri: pelicula.posterImage }} style={styles.poster} />
       ) : posterMap[pelicula.codigo] ? (
@@ -59,7 +60,7 @@ export default function PeliculaCard({ pelicula, onToggleEstado }: Props) {
           </Text>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 

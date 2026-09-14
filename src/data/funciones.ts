@@ -1,5 +1,5 @@
 import { Funcion } from '@/types/funcion';
-import { peliculas } from './peliculas';
+import { peliculas } from './peliculasMock';
 
 // Fecha de hoy en formato "YYYY-MM-DD", para que las funciones de ejemplo
 // siempre cuenten como "de hoy" sin importar cuándo se corra el proyecto.
@@ -20,7 +20,7 @@ const SALA_4 = 'sala-4';
 interface FuncionSemilla {
   peliculaNombre: string;
   salaId: string;
-  hora: string; // "HH:MM" 24h
+  hora: Funcion ['hora']; // "HH:MM" 24h
   formato: Funcion['formato'];
   idioma: Funcion['idioma'];
 }
