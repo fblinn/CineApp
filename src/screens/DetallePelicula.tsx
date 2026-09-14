@@ -5,6 +5,8 @@ import type { RootStackParamList } from '@/navigation/AppNavigator';
 import { useAppSelector } from '@/redux/hooks';
 import { funciones } from '@/data/funciones'; 
 import { colors, radius, spacing, typography } from '@/theme';
+import { posterMap } from '@/data/posterMap';
+import { Pelicula } from '@/types/pelicula';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DetallePelicula'>;
 
@@ -30,9 +32,20 @@ export default function DetallePeliculas({ route }: Props) {
 
   return (
     <View style={styles.contenedor}>
-      {pelicula.posterImage && (
-        <Image source={{ uri: pelicula.posterImage }} style={styles.poster} />
-      )}
+      {pelicula.posterImage ? (
+              <Image source={{ uri: pelicula.posterImage }} style={styles.poster} />
+            ) : posterMap[pelicula.codigo] ? (
+              <Image source={posterMap[pelicula.codigo]} style={styles.poster} />
+            ) : (
+              <View
+                style={[
+                  styles.poster,
+                  styles.posterPlaceholder,
+                  { backgroundColor: colorPorCodigo(pelicula.codigo) },
+                ]}
+              >
+              </View>
+            )}
 
       <Text style={styles.titulo}>{pelicula.nombre}</Text>
       <Text style={styles.subtitulo}>
@@ -61,6 +74,15 @@ export default function DetallePeliculas({ route }: Props) {
       />
     </View>
   );
+}
+
+function colorPorCodigo(codigo: string): string {
+  const paleta = ['#e50914', '#7b2ff7', '#00c9a7', '#f5a623', '#1f6feb', '#c2185b'];
+  let hash = 0;
+  for (let i = 0; i < codigo.length; i++) {
+    hash = codigo.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return paleta[Math.abs(hash) % paleta.length];
 }
 
 const styles = StyleSheet.create({
@@ -125,5 +147,11 @@ const styles = StyleSheet.create({
   vacioTexto: {
     color: colors.textMuted,
     fontSize: typography.small,
+  },
+  posterPlaceholder: {},
+  posterTexto: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 36,
+    fontWeight: '700',
   },
 });
