@@ -1,17 +1,23 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { useAppSelector } from '@/redux/hooks';
+import { funciones } from '@/data/funciones'; 
 import { colors, radius, spacing, typography } from '@/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DetallePelicula'>;
 
-export default function DetallePelicula({ route, navigation }: Props) {
+export default function DetallePeliculas({ route }: Props) {
   const { peliculaId } = route.params;
 
   const pelicula = useAppSelector((state) =>
     state.peliculas.lista.find((p) => p.id === peliculaId)
+  );
+
+  // Filtras directo aquí, sin necesidad de navegar a otra pantalla
+  const funcionesDeLaPelicula = funciones.filter(
+    (f) => f.peliculaId === peliculaId
   );
 
   if (!pelicula) {
@@ -32,28 +38,32 @@ export default function DetallePelicula({ route, navigation }: Props) {
       <Text style={styles.subtitulo}>
         {pelicula.genero} · {pelicula.duracion} min
       </Text>
-      
-      <View style={styles.metaFila}>
-        <Text style={styles.metaTexto}>{pelicula.salaAsignada}</Text>
-        <Text style={styles.metaTexto}>${pelicula.precio.toFixed(2)}</Text>
-      </View>
 
-      <TouchableOpacity
-        style={styles.botonAgregar}
-        onPress={() => navigation.navigate('Funciones', { peliculaId })}
-      >
-        <Text style={styles.botonAgregarTexto}>Ver funciones disponibles</Text>
-      </TouchableOpacity>
+      <Text style={styles.seccionTitulo}>Funciones disponibles</Text>
+
+      <FlatList
+        data={funcionesDeLaPelicula}
+        keyExtractor={(f) => f.id}
+        scrollEnabled={false} // porque ya está dentro del scroll/view de la pantalla
+        renderItem={({ item }) => (
+          <View style={styles.funcionItem}>
+            <Text style={styles.funcionTexto}>
+              {item.hora} · {item.formato} · {item.idioma}
+            </Text>
+            <Text style={styles.funcionSala}>{item.salaId}</Text>
+          </View>
+        )}
+        ListEmptyComponent={
+          <Text style={styles.vacioTexto}>
+            No hay funciones disponibles para esta película
+          </Text>
+        }
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   contenedor: {
     flex: 1,
     backgroundColor: colors.bgBase,
@@ -81,27 +91,29 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.body,
     lineHeight: 22,
-    marginBottom: spacing.md,
-  },
-  metaFila: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: spacing.lg,
   },
-  metaTexto: {
-    color: colors.textMuted,
-    fontSize: typography.small,
-  },
-  botonAgregar: {
-    backgroundColor: colors.red,
-    borderRadius: radius.sm,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  botonAgregarTexto: {
-    color: '#fff',
+  seccionTitulo: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
     fontWeight: '700',
+    marginBottom: spacing.sm,
+  },
+  funcionItem: {
+    backgroundColor: colors.bgPanel,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  funcionTexto: {
+    color: colors.textPrimary,
+    fontSize: typography.small,
+    fontWeight: '600',
+  },
+  funcionSala: {
+    color: colors.textMuted,
     fontSize: typography.small,
   },
   vacioTitulo: {
@@ -109,5 +121,9 @@ const styles = StyleSheet.create({
     fontSize: typography.body,
     fontWeight: '700',
     marginBottom: 4,
+  },
+  vacioTexto: {
+    color: colors.textMuted,
+    fontSize: typography.small,
   },
 });
