@@ -13,7 +13,7 @@ export const peliculas: Pelicula[] = [
     duracion: 181,
     clasificacion: 'B',
     salaAsignada: 'Sala 1',
-    precio: 5.5,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -35,7 +35,7 @@ export const peliculas: Pelicula[] = [
     duracion: 169,
     clasificacion: 'B',
     salaAsignada: 'Sala 3',
-    precio: 5.25,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -46,7 +46,7 @@ export const peliculas: Pelicula[] = [
     duracion: 195,
     clasificacion: 'B',
     salaAsignada: 'Sala 4',
-    precio: 4.5,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -57,7 +57,7 @@ export const peliculas: Pelicula[] = [
     duracion: 110,
     clasificacion: 'B',
     salaAsignada: 'Sala 1',
-    precio: 4.0,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -68,7 +68,7 @@ export const peliculas: Pelicula[] = [
     duracion: 112,
     clasificacion: 'C',
     salaAsignada: 'Sala 2',
-    precio: 4.75,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -79,7 +79,7 @@ export const peliculas: Pelicula[] = [
     duracion: 100,
     clasificacion: 'A',
     salaAsignada: 'Sala 5',
-    precio: 3.75,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -90,7 +90,7 @@ export const peliculas: Pelicula[] = [
     duracion: 90,
     clasificacion: 'A',
     salaAsignada: 'Sala 5',
-    precio: 3.5,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -112,7 +112,7 @@ export const peliculas: Pelicula[] = [
     duracion: 103,
     clasificacion: 'A',
     salaAsignada: 'Sala 4',
-    precio: 4.0,
+    precio: 5.0,
     estado: 'no disponible',
   },
   {
@@ -123,7 +123,7 @@ export const peliculas: Pelicula[] = [
     duracion: 122,
     clasificacion: 'C',
     salaAsignada: 'Sala 2',
-    precio: 4.75,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -134,7 +134,7 @@ export const peliculas: Pelicula[] = [
     duracion: 143,
     clasificacion: 'B',
     salaAsignada: 'Sala 1',
-    precio: 5.25,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -145,7 +145,7 @@ export const peliculas: Pelicula[] = [
     duracion: 96,
     clasificacion: 'A',
     salaAsignada: 'Sala 5',
-    precio: 4.5,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -156,7 +156,7 @@ export const peliculas: Pelicula[] = [
     duracion: 180,
     clasificacion: 'B',
     salaAsignada: 'Sala 3',
-    precio: 5.5,
+    precio: 5.0,
     estado: 'disponible',
   },
   {
@@ -167,7 +167,7 @@ export const peliculas: Pelicula[] = [
     duracion: 192,
     clasificacion: 'B',
     salaAsignada: 'Sala 4',
-    precio: 5.75,
+    precio: 5.0,
     estado: 'disponible',
   },
 ];
