@@ -1,96 +1,149 @@
-import React, { useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import React, { useMemo }from 'react';
+import { View, Text, Image, FlatList, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { Pelicula } from '@/types/pelicula';
+import { useAppSelector } from '@/redux/hooks';
+import { funciones } from '@/data/funciones'; 
 import { colors, radius, spacing, typography } from '@/theme';
+import { posterMap } from '@/data/posterMap';
+import { Pelicula } from '@/types/pelicula';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Catalogo'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'DetallePelicula'>;
 
-export default function DetallePeliculas ( {navigation}: Props) {
-    const peliculas = useAppSelector((state) => state.peliculas.lista);
-    const dispatch = useAppDispatch();
+export default function DetallePeliculas({ route }: Props) {
+  const { peliculaId } = route.params;
 
+  const pelicula = useAppSelector((state) =>
+    state.peliculas.lista.find((p) => p.id === peliculaId)
+  );
+
+  const funcionesDeLaPelicula = useMemo(
+    () => funciones.filter((f) => f.peliculaId === peliculaId),
+    [peliculaId]
+  );
+
+  const todasLasFuncionesCreadas = useAppSelector((state) => state.salas.funciones);
+  
+  const funcionesCreadas = useMemo(
+    () => todasLasFuncionesCreadas.filter((f) => f.peliculaId === peliculaId),
+    [todasLasFuncionesCreadas, peliculaId]
+  );
+  if (!pelicula) {
     return (
-        <View style={styles.contenedor}>
-            <Text style={styles.titulo}>CineFlix </Text>
-            <Text style={styles.subtitulo}>
-                {peliculas.length} películas
-            </Text>
-        </View>
+      <View style={styles.contenedor}>
+        <Text style={styles.vacioTitulo}>Película no encontrada</Text>
+      </View>
     );
+  }
+  const todasFunciones = [...funcionesDeLaPelicula, ...funcionesCreadas];
+
+  return (
+    <View style={styles.contenedor}>
+      {pelicula.posterImage ? (
+              <Image source={{ uri: pelicula.posterImage }} style={styles.poster} />
+            ) : posterMap[pelicula.codigo] ? (
+              <Image source={posterMap[pelicula.codigo]} style={styles.poster} />
+            ) : (
+              <View
+                style={[
+                  styles.poster,
+                  styles.posterPlaceholder,
+                  { backgroundColor: colorPorCodigo(pelicula.codigo) },
+                ]}
+              >
+              </View>
+            )}
+
+      <Text style={styles.titulo}>{pelicula.nombre}</Text>
+      <Text style={styles.subtitulo}>
+        {pelicula.genero} · {pelicula.duracion} min
+      </Text>
+
+      <Text style={styles.seccionTitulo}>Funciones disponibles</Text>
+
+      <FlatList
+        data={todasFunciones}
+        keyExtractor={(f) => f.id}
+        scrollEnabled={false} // porque ya está dentro del scroll/view de la pantalla
+        renderItem={({ item }) => (
+          <View style={styles.funcionItem}>
+            <Text style={styles.funcionTexto}>
+              {item.hora}
+            </Text>
+            <Text style={styles.funcionSala}>{item.salaId}</Text>
+          </View>
+        )}
+        ListEmptyComponent={
+          <Text style={styles.vacioTexto}>
+            No hay funciones disponibles para esta película
+          </Text>
+        }
+      />
+    </View>
+  );
+}
+
+function colorPorCodigo(codigo: string): string {
+  const paleta = ['#e50914', '#7b2ff7', '#00c9a7', '#f5a623', '#1f6feb', '#c2185b'];
+  let hash = 0;
+  for (let i = 0; i < codigo.length; i++) {
+    hash = codigo.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return paleta[Math.abs(hash) % paleta.length];
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    flex: 1,                  
-    justifyContent: 'center', 
-    alignItems: 'center',     
-  },
   contenedor: {
     flex: 1,
     backgroundColor: colors.bgBase,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.lg,
   },
+  poster: {
+    width: '100%',
+    height: 320,
+    borderRadius: radius.md,
+    marginBottom: spacing.md,
+  },
   titulo: {
     color: colors.textPrimary,
     fontSize: typography.hero,
     fontWeight: '700',
-    textAlign: 'center',
   },
   subtitulo: {
     color: colors.textMuted,
     fontSize: typography.small,
     marginTop: 2,
     marginBottom: spacing.md,
-    textAlign: 'center',
   },
-  buscador: {
-    backgroundColor: colors.bgElevated,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderRadius: radius.sm,
-    paddingVertical: 10,
-    paddingHorizontal: spacing.md,
+  sinopsis: {
     color: colors.textPrimary,
     fontSize: typography.body,
-    marginBottom: spacing.sm,
+    lineHeight: 22,
+    marginBottom: spacing.lg,
   },
-  botonSiguiente:{
-    backgroundColor: colors.bgElevated,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderRadius: radius.sm,
-    paddingVertical: 10,
-    paddingHorizontal: spacing.md,
+  seccionTitulo: {
     color: colors.textPrimary,
     fontSize: typography.body,
-    marginBottom: spacing.sm,
-  },
-  botonAgregar: {
-    backgroundColor: colors.red,
-    borderRadius: radius.sm,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  botonAgregarTexto: {
-    color: '#fff',
     fontWeight: '700',
-    fontSize: typography.small,
+    marginBottom: spacing.sm,
   },
-  vacio: {
-    paddingVertical: spacing.xl,
-    alignItems: 'center',
+  funcionItem: {
+    backgroundColor: colors.bgPanel,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  funcionTexto: {
+    color: colors.textPrimary,
+    fontSize: typography.small,
+    fontWeight: '600',
+  },
+  funcionSala: {
+    color: colors.textMuted,
+    fontSize: typography.small,
   },
   vacioTitulo: {
     color: colors.textPrimary,
@@ -102,65 +155,10 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.small,
   },
-  listaVacia: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  confirmOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.75)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  confirmTarjeta: {
-    width: '100%',
-    backgroundColor: colors.bgPanel,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-  },
-  confirmTitulo: {
-    color: colors.textPrimary,
-    fontSize: typography.title,
-    fontWeight: '700',
-    marginBottom: spacing.sm,
-  },
-  confirmTexto: {
-    color: colors.textMuted,
-    fontSize: typography.small,
-    lineHeight: 20,
-    marginBottom: spacing.lg,
-  },
-  confirmNombre: {
-    color: colors.textPrimary,
-    fontWeight: '700',
-  },
-  confirmAcciones: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
-  },
-  botonSecundario: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-  },
-  botonSecundarioTexto: {
-    color: colors.textPrimary,
-    fontSize: typography.small,
-    fontWeight: '600',
-  },
-  botonPeligro: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: radius.sm,
-    backgroundColor: colors.red,
-  },
-  botonPrimarioTexto: {
-    color: '#fff',
-    fontSize: typography.small,
+  posterPlaceholder: {},
+  posterTexto: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 36,
     fontWeight: '700',
   },
 });

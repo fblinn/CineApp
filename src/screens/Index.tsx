@@ -9,13 +9,9 @@ import {
   Modal,
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { eliminarPelicula, cambiarEstadoPelicula } from '@/redux/slices/peliculasSlice';
-import { Pelicula } from '@/types/pelicula';
-import PeliculaFila from '@/components/PeliculaFila';
-import FormularioPeliculaScreen from './FormularioPeliculaScreen';
+import { cambiarEstadoPelicula } from '@/redux/slices/peliculasSlice';
 import { colors, radius, spacing, typography } from '@/theme';
 import PeliculaCard from '@/components/PeliculaCard'; 
-import PeliculasScreen from './PeliculasScreen';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
 
@@ -26,9 +22,6 @@ export default function IndexScreen({ navigation }: Props) {
   const peliculas = useAppSelector((state) => state.peliculas.lista);
 
   const [busqueda, setBusqueda] = useState('');
-  const [formularioVisible, setFormularioVisible] = useState(false);
-  const [peliculaEditar, setPeliculaEditar] = useState<Pelicula | null>(null);
-  const [peliculaEliminar, setPeliculaEliminar] = useState<Pelicula | null>(null);
 
   const peliculasFiltradas = useMemo(() => {
     const termino = busqueda.trim().toLowerCase();
@@ -71,6 +64,9 @@ export default function IndexScreen({ navigation }: Props) {
             <PeliculaCard
             pelicula={item}
             onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
+            onPress={() =>
+              navigation.navigate('DetallePelicula', { peliculaId: item.id })
+            }
             />
         )}
         />
