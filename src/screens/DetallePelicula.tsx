@@ -17,9 +17,12 @@ export default function DetallePeliculas({ route }: Props) {
     state.peliculas.lista.find((p) => p.id === peliculaId)
   );
 
-  // Filtras directo aquí, sin necesidad de navegar a otra pantalla
   const funcionesDeLaPelicula = funciones.filter(
     (f) => f.peliculaId === peliculaId
+  );
+
+  const funcionesCreadas = useAppSelector((state) =>
+    state.salas.funciones.filter((f) => f.peliculaId === peliculaId)
   );
 
   if (!pelicula) {
@@ -29,6 +32,7 @@ export default function DetallePeliculas({ route }: Props) {
       </View>
     );
   }
+  const todasFunciones = [...funcionesDeLaPelicula, ...funcionesCreadas];
 
   return (
     <View style={styles.contenedor}>
@@ -55,7 +59,7 @@ export default function DetallePeliculas({ route }: Props) {
       <Text style={styles.seccionTitulo}>Funciones disponibles</Text>
 
       <FlatList
-        data={funcionesDeLaPelicula}
+        data={todasFunciones}
         keyExtractor={(f) => f.id}
         scrollEnabled={false} // porque ya está dentro del scroll/view de la pantalla
         renderItem={({ item }) => (
