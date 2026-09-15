@@ -7,7 +7,7 @@ import salasReducer from "@/redux/slices/salasSlice";
 import asientosReducer from "@/redux/slices/asientoSlice";
 
 import { persistReducer, persistStore } from "redux-persist";
-import storage from "redux-persist/lib/storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const rootReducer = combineReducers({
   peliculas: peliculasReducer,
@@ -18,7 +18,7 @@ const rootReducer = combineReducers({
 
 const persistConfig = {
   key: "root",
-  storage,
+   storage: AsyncStorage,
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
