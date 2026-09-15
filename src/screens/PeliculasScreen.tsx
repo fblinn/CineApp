@@ -66,18 +66,26 @@ export default function PeliculasScreen({ navigation }: Props) {
         {peliculasFiltradas.length} de {peliculas.length} películas
       </Text>
 
-      {/* Acceso destacado al Dashboard */}
+      {/* Acceso destacado al Dashboard y scanner*/}
       <TouchableOpacity
-        style={styles.tarjetaDashboard}
+        style={styles.filaAccesos}
         onPress={() => navigation.navigate('Dashboard')}
         activeOpacity={0.85}
       >
       
-        <View style={styles.tarjetaDashboardTexto}>
-          <Text style={styles.tarjetaDashboardTitulo}>Dashboard</Text>
+        <View style={styles.tarjetaAcceso}>
+          <Text style={styles.tarjetaAccesoTitulo}>Dashboard</Text>
         </View>
         <Text style={styles.tarjetaDashboardFlecha}>›</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+          style={styles.tarjetaAcceso}
+          onPress={() => navigation.navigate('Escaner')}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.tarjetaAccesoTitulo}>Escáner QR</Text>
+        </TouchableOpacity>
 
       <TextInput
         style={styles.buscador}
@@ -178,6 +186,25 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     marginTop: 2,
     marginBottom: spacing.md,
+  },
+   filaAccesos: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  tarjetaAcceso: {
+    flex: 1,
+    backgroundColor: colors.bgPanel,
+    borderWidth: 1,
+    borderColor: 'rgba(229, 9, 20, 0.35)',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    alignItems: 'center',
+  },
+  tarjetaAccesoTitulo: {
+    color: colors.textPrimary,
+    fontSize: typography.small,
+    fontWeight: '700',
   },
   buscador: {
     backgroundColor: colors.bgElevated,
