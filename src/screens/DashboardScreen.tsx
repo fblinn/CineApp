@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
 import { useAppSelector } from '@/redux/hooks';
-import { selectFunciones } from '@/redux/slices/salasSlice';
+import { selectFunciones, selectSalas } from '@/redux/slices/salasSlice';
 import { colors, radius, spacing, typography, fontDisplay } from '@/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
@@ -12,17 +12,67 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 export default function DashboardScreen({ navigation }: Props) {
   const peliculas = useAppSelector((state) => state.peliculas.lista);
   const funciones = useAppSelector(selectFunciones);
+  const salas = useAppSelector(selectSalas);
+  const reservas = useAppSelector((state) => state.reservas.lista);
+  const ocupadosPorFuncion = useAppSelector(
+    (state) => state.asientos.ocupadosPorFuncion
+  );
 
-  // ya pueden calcularse con el avance momentaneo
   const totalPeliculas = peliculas.length;
   const totalFunciones = funciones.length;
 
-  // estos 5 dependen del slice de "reservas" 
-  const boletosVendidos: number | null = null;
-  const asientosDisponibles: number | null = null;
-  const asientosOcupados: number | null = null;
-  const ingresosGenerados: number | null = null;
-  const peliculaMasReservada: string | null = null;
+   // Cada asiento reservado cuenta como un boleto vendido
+  const boletosVendidos = useMemo(
+    () => reservas.reduce((acc, r) => acc + r.asientos.length, 0),
+    [reservas]
+  );
+
+  // Suma de todos los asientos marcados como ocupados en cualquier función
+  const asientosOcupados = useMemo(
+    () =>
+      Object.values(ocupadosPorFuncion).reduce((acc, arr) => acc + arr.length, 0),
+    [ocupadosPorFuncion]
+  );
+
+  // Capacidad total = suma de la capacidad de la sala de cada función creada
+  // (cada función "reserva" toda la sala en su horario)
+  const capacidadTotal = useMemo(
+    () =>
+      funciones.reduce((acc, f) => {
+        const sala = salas.find((s) => s.id === f.salaId);
+        return acc + (sala?.capacidad ?? 0);
+      }, 0),
+    [funciones, salas]
+  );
+
+  const asientosDisponibles = Math.max(capacidadTotal - asientosOcupados, 0);
+
+  const ingresosGenerados = useMemo(
+    () => reservas.reduce((acc, r) => acc + r.total, 0),
+    [reservas]
+  );
+
+  // Película con más reservas (por cantidad de reservas, no de asientos)
+  const peliculaMasReservada = useMemo(() => {
+    if (reservas.length === 0) return null;
+
+    const conteoPorPelicula: Record<string, number> = {};
+    reservas.forEach((r) => {
+      conteoPorPelicula[r.peliculaId] = (conteoPorPelicula[r.peliculaId] ?? 0) + 1;
+    });
+
+    let mejorId: string | null = null;
+    let mejorConteo = 0;
+    Object.entries(conteoPorPelicula).forEach(([id, conteo]) => {
+      if (conteo > mejorConteo) {
+        mejorConteo = conteo;
+        mejorId = id;
+      }
+    });
+
+    if (!mejorId) return null;
+    return peliculas.find((p) => p.id === mejorId)?.nombre ?? 'Desconocida';
+  }, [reservas, peliculas]);
 
   return (
     <SafeAreaView style={styles.contenedor} edges={['top']}>
@@ -52,13 +102,8 @@ export default function DashboardScreen({ navigation }: Props) {
         <View style={styles.tarjetaAncha}>
           <Text style={styles.tarjetaAnchaEtiqueta}>Película más reservada</Text>
           <Text style={styles.tarjetaAnchaValor}>
-            {peliculaMasReservada ?? 'Pendiente'}
+            {peliculaMasReservada ?? 'Aún no hay reservas'}
           </Text>
-          {peliculaMasReservada === null && (
-            <Text style={styles.pendienteNota}>
-              Pendiente
-            </Text>
-          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -71,18 +116,16 @@ function TarjetaStat({
   prefijo = '',
 }: {
   etiqueta: string;
-  valor: number | null;
+  valor: number;
   prefijo?: string;
 }) {
-  const pendiente = valor === null;
-
   return (
     <View style={styles.tarjeta}>
       <Text style={styles.tarjetaEtiqueta}>{etiqueta}</Text>
-      <Text style={[styles.tarjetaValor, pendiente && styles.tarjetaValorPendiente]}>
-        {pendiente ? '—' : `${prefijo}${valor.toLocaleString()}`}
+      <Text style={styles.tarjetaValor}>
+        {prefijo}
+        {valor.toLocaleString()}
       </Text>
-      {pendiente && <Text style={styles.pendienteNota}>Pendiente</Text>}
     </View>
   );
 }
