@@ -69,7 +69,7 @@ export default function PeliculasScreen({ navigation }: Props) {
       {/* Acceso destacado al Dashboard y scanner*/}
        <View style={styles.filaAccesos}>
         <TouchableOpacity
-          style={styles.filaAccesos}
+          style={styles.tarjetaAcceso}
           onPress={() => navigation.navigate('Dashboard')}
           activeOpacity={0.85}
         >
