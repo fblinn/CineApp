@@ -4,11 +4,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import IndexScreen from '@/screens/Index';
 import PeliculasScreen from '@/screens/PeliculasScreen';
 import CrearFuncionScreen from '@/screens/CrearFuncionScreen';
+import EscanerScreen from '@/screens/EscanerScreen';
 import DashboardScreen from '@/screens/DashboardScreen';
-import { colors } from '@/theme';
 import DetallePelicula from '@/screens/DetallePelicula';
-import { Pelicula } from '@/types/pelicula';
 import MapaAsientosScreen from '@/screens/MapaAsientosScreen';
+import { Pelicula } from '@/types/pelicula';
+import { colors } from '@/theme';
 
 // Rutas de la app. Cuando se agregue la biometría, el paso de "Catalogo" a
 // "GestionPeliculas" se intercepta ahí antes de navegar.
@@ -17,6 +18,7 @@ export type RootStackParamList = {
   GestionPeliculas: undefined;
   CrearFuncion: undefined;
   Dashboard: undefined;
+  Escaner: undefined;
   Funciones: { peliculaId: string };
   DetallePelicula: { peliculaId: string };
   SeleccionAsientos: {
@@ -53,6 +55,7 @@ export default function AppNavigator() {
         <Stack.Screen name="GestionPeliculas" component={PeliculasScreen} />
         <Stack.Screen name="CrearFuncion" component={CrearFuncionScreen} />
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
+         <Stack.Screen name="Escaner" component={EscanerScreen} />
         <Stack.Screen name="DetallePelicula" component={DetallePelicula} />
         <Stack.Screen name="SeleccionAsientos" component={MapaAsientosScreen} />
       </Stack.Navigator>
