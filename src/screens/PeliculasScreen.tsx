@@ -67,25 +67,23 @@ export default function PeliculasScreen({ navigation }: Props) {
       </Text>
 
       {/* Acceso destacado al Dashboard y scanner*/}
-      <TouchableOpacity
-        style={styles.filaAccesos}
-        onPress={() => navigation.navigate('Dashboard')}
-        activeOpacity={0.85}
-      >
-      
-        <View style={styles.tarjetaAcceso}>
-          <Text style={styles.tarjetaAccesoTitulo}>Dashboard</Text>
-        </View>
-        <Text style={styles.tarjetaDashboardFlecha}>›</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-          style={styles.tarjetaAcceso}
-          onPress={() => navigation.navigate('Escaner')}
+       <View style={styles.filaAccesos}>
+        <TouchableOpacity
+          style={styles.filaAccesos}
+          onPress={() => navigation.navigate('Dashboard')}
           activeOpacity={0.85}
         >
-          <Text style={styles.tarjetaAccesoTitulo}>Escáner QR</Text>
+         <Text style={styles.tarjetaAccesoTitulo}>Dashboard</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+            style={styles.tarjetaAcceso}
+            onPress={() => navigation.navigate('Escaner')}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.tarjetaAccesoTitulo}>Escáner QR</Text>
+          </TouchableOpacity>
+      </View>
 
       <TextInput
         style={styles.buscador}
