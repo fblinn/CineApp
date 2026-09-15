@@ -8,12 +8,9 @@ import EscanerScreen from '@/screens/EscanerScreen';
 import DashboardScreen from '@/screens/DashboardScreen';
 import DetallePelicula from '@/screens/DetallePelicula';
 import MapaAsientosScreen from '@/screens/MapaAsientosScreen';
-<<<<<<< HEAD
 import FormularioVenta from '@/screens/FormularioVenta';
-=======
 import { Pelicula } from '@/types/pelicula';
 import { colors } from '@/theme';
->>>>>>> 6f48ba91cb8bd83f28aace2ea7eb0df6607dd13a
 
 // Rutas de la app. Cuando se agregue la biometría, el paso de "Catalogo" a
 // "GestionPeliculas" se intercepta ahí antes de navegar.
