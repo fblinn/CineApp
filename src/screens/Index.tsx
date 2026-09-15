@@ -111,6 +111,7 @@ export default function IndexScreen({ navigation }: Props) {
         data={peliculasFiltradas}
         keyExtractor={(item) => item.id}
         numColumns={2}
+        style={{ flex: 1 }}
         columnWrapperStyle={{ gap: spacing.sm, paddingHorizontal: spacing.sm }}
          contentContainerStyle={
           peliculasFiltradas.length === 0 ? styles.listaVacia : styles.lista
@@ -161,7 +162,7 @@ function FiltroChip({
           style={[styles.chipTexto, activo && styles.chipTextoActivo]}
           numberOfLines={1}
         >
-          {activo ? valor : etiqueta}
+          {activo ? valor : etiqueta} ▾
         </Text>
       </TouchableOpacity>
 
@@ -263,9 +264,9 @@ const styles = StyleSheet.create({
     borderColor: colors.red,
   },
   chipTexto: {
-    color: colors.textMuted,
+    color: colors.textPrimary,
     fontSize: typography.tiny,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   chipTextoActivo: {
     color: '#fff',
