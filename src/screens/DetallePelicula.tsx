@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo }from 'react';
 import { View, Text, Image, FlatList, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
@@ -17,8 +17,9 @@ export default function DetallePeliculas({ route }: Props) {
     state.peliculas.lista.find((p) => p.id === peliculaId)
   );
 
-  const funcionesDeLaPelicula = funciones.filter(
-    (f) => f.peliculaId === peliculaId
+  const funcionesDeLaPelicula = useMemo(
+    () => funciones.filter((f) => f.peliculaId === peliculaId),
+    [peliculaId]
   );
 
   const funcionesCreadas = useAppSelector((state) =>
