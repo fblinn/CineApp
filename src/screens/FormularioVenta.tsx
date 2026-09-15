@@ -16,6 +16,8 @@ import { colors, radius, spacing, typography } from '@/theme';
 import { useAppDispatch } from '@/redux/hooks';
 import { agregarReserva } from '@/redux/slices/reservasSlice';
 import { marcarAsientosOcupados } from '@/redux/slices/asientoSlice';
+import 'react-native-get-random-values'; 
+
 
 // ---------- Tipos ----------
 
@@ -84,6 +86,7 @@ export default function FormularioVenta({ navigation, route }: Props) {
   const [valores, setValores] = useState<FormState>(VALOR_INICIAL);
   const [errores, setErrores] = useState<Errores>({});
   const [modalVisible, setModalVisible] = useState(false);
+  const [codigoGenerado, setCodigoGenerado] = useState<string | null>(null);
 
   function actualizarCampo(campo: CampoTexto, valor: string) {
     setValores((prev) => ({ ...prev, [campo]: valor }));
@@ -91,6 +94,11 @@ export default function FormularioVenta({ navigation, route }: Props) {
       setErrores((prev) => ({ ...prev, [campo]: undefined }));
     }
   }
+
+  function confirmarVenta() {
+  if (!validarFormulario()) return;
+
+  const idBoleto = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   function validarFormulario(): boolean {
     const nuevosErrores: Errores = {};
@@ -108,18 +116,21 @@ export default function FormularioVenta({ navigation, route }: Props) {
     // 1. Guardamos la reserva/venta en el store.
     dispatch(
       agregarReserva({
-        funcionId,
+        id: idBoleto,
         peliculaId: pelicula.id,
+        sala: pelicula.salaAsignada,
+        fecha: route.params.fecha,
+        hora: route.params.hora,
         asientos,
-        total,
-        cliente: valores,
+        clienteNombre: valores.nombreCliente,
+        clienteEmail: valores.email,
+        clienteTelefono: valores.telefono,
+        monto: total,
       })
     );
 
-    // 2. Recién AHORA marcamos esos asientos como ocupados de verdad,
-    //    para que ya no aparezcan disponibles para otros compradores.
     dispatch(marcarAsientosOcupados({ funcionId, asientos }));
-
+    navigation.replace('GeneradorQR', { reservaId: idBoleto });
     setModalVisible(true);
   }
 
@@ -202,7 +213,7 @@ export default function FormularioVenta({ navigation, route }: Props) {
               style={styles.modalBoton}
               onPress={cerrarModalYSalir}
             >
-              <Text style={styles.modalBotonTexto}>Aceptar</Text>
+              <Text style={styles.modalBotonTexto}>Aceptar y ver QR</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -352,4 +363,4 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     fontWeight: '700',
   },
-});
+});}

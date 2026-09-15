@@ -1,20 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-// ---------- Tipos ----------
-
-export interface Reserva {
-  id: string;
-  funcionId: string;
-  peliculaId: string;
-  asientos: string[];
-  total: number;
-  cliente: {
-    nombreCliente: string;
-    email: string;
-    telefono: string;
-  };
-  fecha: string; 
-}
+import { Reserva, ReservaFormData, EstadoReserva } from "../../types/reserva";
 
 export interface ReservasState {
   lista: Reserva[];
@@ -28,16 +13,15 @@ const reservasSlice = createSlice({
   name: "reservas",
   initialState,
   reducers: {
-    // Omitimos "id" y "fecha" porque los genera el propio reducer.
     agregarReserva: {
       reducer: (state, action: PayloadAction<Reserva>) => {
         state.lista.push(action.payload);
       },
-      prepare: (datos: Omit<Reserva, "id" | "fecha">) => ({
+      prepare: (datos: ReservaFormData & { id: string }): { payload: Reserva } => ({
         payload: {
           ...datos,
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          fecha: new Date().toISOString(),
+          estado: 'completa',
+          validado: false,
         },
       }),
     },
@@ -45,8 +29,23 @@ const reservasSlice = createSlice({
     eliminarReserva: (state, action: PayloadAction<{ id: string }>) => {
       state.lista = state.lista.filter((r) => r.id !== action.payload.id);
     },
+
+    cancelarReserva: (state, action: PayloadAction<{ id: string }>) => {
+      const reserva = state.lista.find((r) => r.id === action.payload.id);
+      if (reserva) reserva.estado = 'cancelada';
+    },
+
+    marcarBoletoValidado: (state, action: PayloadAction<{ id: string }>) => {
+      const reserva = state.lista.find((r) => r.id === action.payload.id);
+      if (reserva) reserva.validado = true;
+    },
   },
 });
 
-export const { agregarReserva, eliminarReserva } = reservasSlice.actions;
+export const {
+  agregarReserva,
+  eliminarReserva,
+  cancelarReserva,
+  marcarBoletoValidado,
+} = reservasSlice.actions;
 export default reservasSlice.reducer;

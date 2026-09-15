@@ -25,12 +25,8 @@ export type RootStackParamList = {
   SeleccionAsientos: {
   funcionId: string;
   pelicula: Pelicula;};
-  FormularioVenta: {
-    funcionId: string;
-    pelicula: Pelicula;
-    asientos: string[];
-    total: number;
-  };
+  FormularioVenta: { funcionId: string; pelicula: Pelicula; asientos: string[]; total: number; fecha: string; hora: string; sala: string; };
+  GeneradorQR: { reservaId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -64,7 +60,10 @@ export default function AppNavigator() {
          <Stack.Screen name="Escaner" component={EscanerScreen} />
         <Stack.Screen name="DetallePelicula" component={DetallePelicula} />
         <Stack.Screen name="SeleccionAsientos" component={MapaAsientosScreen} />
-        <Stack.Screen name="FormularioVenta" component={FormularioVenta} />
+        <Stack.Screen
+          name="FormularioVenta"
+          component={FormularioVenta as React.ComponentType<any>}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
