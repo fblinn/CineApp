@@ -1,16 +1,17 @@
-import React, { useMemo }from 'react';
-import { View, Text, Image, FlatList, StyleSheet } from 'react-native';
+import { useMemo }from 'react';
+import { Pressable, View, Text, Image, FlatList, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
 import { useAppSelector } from '@/redux/hooks';
 import { funciones } from '@/data/funciones'; 
 import { colors, radius, spacing, typography } from '@/theme';
 import { posterMap } from '@/data/posterMap';
-import { Pelicula } from '@/types/pelicula';
+import { useNavigation } from '@react-navigation/native';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'DetallePelicula'>;
 
-export default function DetallePeliculas({ route }: Props) {
+export default function DetallePeliculas({ navigation, route }: Props) {
   const { peliculaId } = route.params;
 
   const pelicula = useAppSelector((state) =>
@@ -64,14 +65,23 @@ export default function DetallePeliculas({ route }: Props) {
       <FlatList
         data={todasFunciones}
         keyExtractor={(f) => f.id}
-        scrollEnabled={false} // porque ya está dentro del scroll/view de la pantalla
+        scrollEnabled={false}
         renderItem={({ item }) => (
-          <View style={styles.funcionItem}>
-            <Text style={styles.funcionTexto}>
-              {item.hora}
-            </Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.funcionItem,
+              pressed && styles.funcionItemPresionado,
+            ]}
+            onPress={() =>
+              navigation.navigate('SeleccionAsientos', {
+                funcionId: item.id,
+                pelicula,
+              })
+            }
+          >
+            <Text style={styles.funcionTexto}>{item.hora}</Text>
             <Text style={styles.funcionSala}>{item.salaId}</Text>
-          </View>
+          </Pressable>
         )}
         ListEmptyComponent={
           <Text style={styles.vacioTexto}>
@@ -160,5 +170,8 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.85)',
     fontSize: 36,
     fontWeight: '700',
+  },
+  funcionItemPresionado: {
+    opacity: 0.6,
   },
 });

@@ -6,6 +6,8 @@ import PeliculasScreen from '@/screens/PeliculasScreen';
 import CrearFuncionScreen from '@/screens/CrearFuncionScreen';
 import { colors } from '@/theme';
 import DetallePelicula from '@/screens/DetallePelicula';
+import { Pelicula } from '@/types/pelicula';
+import MapaAsientosScreen from '@/screens/MapaAsientosScreen';
 
 // Rutas de la app. Cuando se agregue la biometría, el paso de "Catalogo" a
 // "GestionPeliculas" se intercepta ahí antes de navegar.
@@ -15,6 +17,10 @@ export type RootStackParamList = {
   CrearFuncion: undefined;
   Funciones: { peliculaId: string };
   DetallePelicula: { peliculaId: string };
+  SeleccionAsientos: {
+  funcionId: string;
+  pelicula: Pelicula;
+};
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
