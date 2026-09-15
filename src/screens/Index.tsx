@@ -107,33 +107,31 @@ export default function IndexScreen({ navigation }: Props) {
         <Text>Vista de admin</Text>
       </TouchableOpacity>
 
-      <FlatList
-        data={peliculasFiltradas}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        style={{ flex: 1 }}
-        columnWrapperStyle={{ gap: spacing.sm, paddingHorizontal: spacing.sm }}
-         contentContainerStyle={
-          peliculasFiltradas.length === 0 ? styles.listaVacia : styles.lista
-        }
-        ListEmptyComponent={
-          <View style={styles.vacio}>
-            <Text style={styles.vacioTitulo}>No se encontraron películas</Text>
-            <Text style={styles.vacioTexto}>
-              Prueba con otros filtros o términos de búsqueda.
-            </Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-            <PeliculaCard
-            pelicula={item}
-            onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
-            onPress={() =>
-              navigation.navigate('DetallePelicula', { peliculaId: item.id })
-            }
-            />
-        )}
+      {peliculasFiltradas.length === 0 ? (
+        <View style={styles.vacio}>
+          <Text style={styles.vacioTitulo}>No se encontraron películas</Text>
+          <Text style={styles.vacioTexto}>
+            Prueba con otros filtros o términos de búsqueda.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={peliculasFiltradas}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={{ gap: spacing.sm, paddingHorizontal: spacing.sm }}
+          contentContainerStyle={styles.lista}
+          renderItem={({ item }) => (
+              <PeliculaCard
+              pelicula={item}
+              onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
+              onPress={() =>
+                navigation.navigate('DetallePelicula', { peliculaId: item.id })
+              }
+              />
+          )}
         />
+      )}
     </View>
   );
 }
@@ -240,21 +238,24 @@ const styles = StyleSheet.create({
   },
   filtrosScroll: {
     marginBottom: spacing.sm,
+    maxHeight:45,
   },
   filtrosFila: {
     gap: spacing.sm,
     paddingRight: spacing.md,
     flexGrow: 1,
+    paddingHorizontal: spacing.md,
     justifyContent: 'center',
   },
   chip: {
     backgroundColor: colors.bgElevated,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    borderRadius: 16,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
     minWidth: 90,
+    height: 42,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
