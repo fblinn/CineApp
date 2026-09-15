@@ -66,6 +66,19 @@ export default function PeliculasScreen({ navigation }: Props) {
         {peliculasFiltradas.length} de {peliculas.length} películas
       </Text>
 
+      {/* Acceso destacado al Dashboard */}
+      <TouchableOpacity
+        style={styles.tarjetaDashboard}
+        onPress={() => navigation.navigate('Dashboard')}
+        activeOpacity={0.85}
+      >
+      
+        <View style={styles.tarjetaDashboardTexto}>
+          <Text style={styles.tarjetaDashboardTitulo}>Dashboard</Text>
+        </View>
+        <Text style={styles.tarjetaDashboardFlecha}>›</Text>
+      </TouchableOpacity>
+
       <TextInput
         style={styles.buscador}
         placeholder="Buscar por nombre, género, sala..."
@@ -284,5 +297,45 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: typography.small,
     fontWeight: '700',
+  },
+  tarjetaDashboard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.bgPanel,
+    borderWidth: 1,
+    borderColor: 'rgba(229, 9, 20, 0.35)',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.md,
+  },
+  tarjetaDashboardIcono: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.sm,
+    backgroundColor: 'rgba(229, 9, 20, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tarjetaDashboardEmoji: {
+    fontSize: 20,
+  },
+  tarjetaDashboardTexto: {
+    flex: 1,
+  },
+  tarjetaDashboardTitulo: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    fontWeight: '700',
+  },
+  tarjetaDashboardSubtitulo: {
+    color: colors.textMuted,
+    fontSize: typography.tiny,
+    marginTop: 2,
+  },
+  tarjetaDashboardFlecha: {
+    color: colors.red,
+    fontSize: 26,
+    fontWeight: '300',
   },
 });

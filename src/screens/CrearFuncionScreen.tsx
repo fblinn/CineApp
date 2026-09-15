@@ -8,7 +8,6 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-//import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
@@ -48,6 +47,14 @@ export default function CrearFuncionScreen({ navigation }: Props) {
   const [mostrarHora, setMostrarHora] = useState(false);
   const [error, setError] = useState('');
 
+  // Si la película seleccionada ya no existe o se agregó una, se actualiza sola
+  React.useEffect(() => {
+    const sigueExistiendo = peliculasDisponibles.some((p) => p.id === peliculaId);
+    if (!sigueExistiendo) {
+      setPeliculaId(peliculasDisponibles[0]?.id ?? '');
+    }
+  }, [peliculasDisponibles]);
+  
   const fecha = formatearFecha(fechaObj);
   const hora = formatearHora(horaObj);
 
