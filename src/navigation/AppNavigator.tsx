@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import IndexScreen from '@/screens/Index';
 import PeliculasScreen from '@/screens/PeliculasScreen';
 import CrearFuncionScreen from '@/screens/CrearFuncionScreen';
+import DashboardScreen from '@/screens/DashboardScreen';
 import { colors } from '@/theme';
 import DetallePelicula from '@/screens/DetallePelicula';
 import { Pelicula } from '@/types/pelicula';
@@ -15,6 +16,7 @@ export type RootStackParamList = {
   Catalogo: undefined;
   GestionPeliculas: undefined;
   CrearFuncion: undefined;
+  Dashboard: undefined;
   Funciones: { peliculaId: string };
   DetallePelicula: { peliculaId: string };
   SeleccionAsientos: {
@@ -50,6 +52,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Catalogo" component={IndexScreen} />
         <Stack.Screen name="GestionPeliculas" component={PeliculasScreen} />
         <Stack.Screen name="CrearFuncion" component={CrearFuncionScreen} />
+        <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="DetallePelicula" component={DetallePelicula} />
         <Stack.Screen name="SeleccionAsientos" component={MapaAsientosScreen} />
       </Stack.Navigator>

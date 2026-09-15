@@ -289,7 +289,7 @@ export default function FormularioPeliculaScreen({
               })}
               
               <View style={styles.campo}>
-                <Text style={styles.etiqueta}>Poster (opcional)</Text>
+                <Text style={styles.etiqueta}>Poster</Text>
                 <View style={styles.posterFila}>
                   {form.posterImage ? (
                     <Image source={{ uri: form.posterImage }} style={styles.posterPreview} />

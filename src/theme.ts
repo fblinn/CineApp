@@ -35,3 +35,5 @@ export const typography = {
   title: 20,
   hero: 30,
 };
+
+export const fontDisplay = 'BebasNeue_400Regular';
