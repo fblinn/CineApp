@@ -51,6 +51,7 @@ export default function AppNavigator() {
         <Stack.Screen name="GestionPeliculas" component={PeliculasScreen} />
         <Stack.Screen name="CrearFuncion" component={CrearFuncionScreen} />
         <Stack.Screen name="DetallePelicula" component={DetallePelicula} />
+        <Stack.Screen name="SeleccionAsientos" component={MapaAsientosScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
