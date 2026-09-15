@@ -22,10 +22,12 @@ export default function DetallePeliculas({ route }: Props) {
     [peliculaId]
   );
 
-  const funcionesCreadas = useAppSelector((state) =>
-    state.salas.funciones.filter((f) => f.peliculaId === peliculaId)
+  const todasLasFuncionesCreadas = useAppSelector((state) => state.salas.funciones);
+  
+  const funcionesCreadas = useMemo(
+    () => todasLasFuncionesCreadas.filter((f) => f.peliculaId === peliculaId),
+    [todasLasFuncionesCreadas, peliculaId]
   );
-
   if (!pelicula) {
     return (
       <View style={styles.contenedor}>
