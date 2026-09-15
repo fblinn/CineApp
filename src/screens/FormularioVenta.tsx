@@ -8,7 +8,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  Modal,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
@@ -38,6 +38,7 @@ const VALOR_INICIAL: FormState = {
 };
 
 const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Ajusta el mínimo de dígitos según el formato que uses (ej. El Salvador: 8 dígitos)
 const REGEX_TELEFONO = /^\d{8,}$/;
 
 // ---------- Validación ----------
@@ -82,6 +83,7 @@ export default function FormularioVenta({ navigation, route }: Props) {
 
   const [valores, setValores] = useState<FormState>(VALOR_INICIAL);
   const [errores, setErrores] = useState<Errores>({});
+  const [modalVisible, setModalVisible] = useState(false);
 
   function actualizarCampo(campo: CampoTexto, valor: string) {
     setValores((prev) => ({ ...prev, [campo]: valor }));
@@ -103,6 +105,7 @@ export default function FormularioVenta({ navigation, route }: Props) {
   function confirmarVenta() {
     if (!validarFormulario()) return;
 
+    // 1. Guardamos la reserva/venta en el store.
     dispatch(
       agregarReserva({
         funcionId,
@@ -113,18 +116,16 @@ export default function FormularioVenta({ navigation, route }: Props) {
       })
     );
 
+    // 2. Recién AHORA marcamos esos asientos como ocupados de verdad,
+    //    para que ya no aparezcan disponibles para otros compradores.
     dispatch(marcarAsientosOcupados({ funcionId, asientos }));
 
-    Alert.alert(
-      'Compra confirmada',
-      `Se compraron ${asientos.length} asiento(s) por $${total.toFixed(2)}.`,
-      [
-        {
-          text: 'Aceptar',
-          onPress: () => navigation.popToTop(),
-        },
-      ]
-    );
+    setModalVisible(true);
+  }
+
+  function cerrarModalYSalir() {
+    setModalVisible(false);
+    navigation.popToTop();
   }
 
   return (
@@ -180,6 +181,32 @@ export default function FormularioVenta({ navigation, route }: Props) {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={cerrarModalYSalir}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalTarjeta}>
+            <Text style={styles.modalTitulo}>Compra confirmada</Text>
+            <Text style={styles.modalTexto}>
+              Se compraron {asientos.length} asiento
+              {asientos.length > 1 ? 's' : ''} por ${total.toFixed(2)}.
+            </Text>
+            <Text style={styles.modalSubtexto}>
+              {pelicula.nombre} · Asientos: {asientos.join(', ')}
+            </Text>
+            <TouchableOpacity
+              style={styles.modalBoton}
+              onPress={cerrarModalYSalir}
+            >
+              <Text style={styles.modalBotonTexto}>Aceptar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -274,6 +301,53 @@ const styles = StyleSheet.create({
     backgroundColor: colors.red,
   },
   botonPrimarioTexto: {
+    color: '#fff',
+    fontSize: typography.small,
+    fontWeight: '700',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.lg,
+  },
+  modalTarjeta: {
+    width: '100%',
+    backgroundColor: colors.bgElevated,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    padding: spacing.lg,
+    alignItems: 'center',
+  },
+  modalTitulo: {
+    color: colors.textPrimary,
+    fontSize: typography.title,
+    fontWeight: '700',
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  modalTexto: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    textAlign: 'center',
+    marginBottom: spacing.xs,
+  },
+  modalSubtexto: {
+    color: colors.textMuted,
+    fontSize: typography.small,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  modalBoton: {
+    backgroundColor: colors.red,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: radius.sm,
+    marginTop: spacing.sm,
+  },
+  modalBotonTexto: {
     color: '#fff',
     fontSize: typography.small,
     fontWeight: '700',
