@@ -5,6 +5,7 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
+  ScrollView,
   StyleSheet,
   Modal,
 } from 'react-native';
@@ -16,6 +17,8 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Catalogo'>;
+
+const TODOS = 'Todos';
 
 export default function IndexScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
