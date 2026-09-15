@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Modal,
   View,
   Text,
   TextInput,
@@ -9,411 +8,219 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Image,
   Alert,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { agregarPelicula, editarPelicula } from '@/redux/slices/peliculasSlice';
-import { Pelicula, EstadoPelicula } from '@/types/pelicula';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/AppNavigator';
 import { colors, radius, spacing, typography } from '@/theme';
+import { useAppDispatch } from '@/redux/hooks';
+import { agregarReserva } from '@/redux/slices/reservasSlice';
+import { marcarAsientosOcupados } from '@/redux/slices/asientoSlice';
 
-interface FormularioPeliculaScreenProps {
-  visible: boolean;
-  peliculaEditar: Pelicula | null;
-  onClose: () => void;
-}
+// ---------- Tipos ----------
+
+type Props = NativeStackScreenProps<RootStackParamList, 'FormularioVenta'>;
 
 interface FormState {
-  codigo: string;
-  nombre: string;
-  genero: string;
-  duracion: string;
-  clasificacion: string;
-  salaAsignada: string;
-  precio: string;
-  estado: EstadoPelicula;
-  posterImage: string;
+  nombreCliente: string;
+  email: string;
+  telefono: string;
 }
 
-type CampoTexto = Exclude<keyof FormState, 'estado'>;
-type Errores = Partial<Record<keyof FormState, string>>;
+type CampoTexto = keyof FormState;
 
-function estadoInicial(pelicula: Pelicula | null): FormState {
-  if (!pelicula) {
-    return {
-      codigo: '',
-      nombre: '',
-      genero: '',
-      duracion: '',
-      clasificacion: '',
-      salaAsignada: '',
-      precio: '',
-      estado: 'disponible',
-       posterImage: '',
-    };
+type Errores = Partial<Record<CampoTexto, string>>;
+
+const VALOR_INICIAL: FormState = {
+  nombreCliente: '',
+  email: '',
+  telefono: '',
+};
+
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const REGEX_TELEFONO = /^\d{8,}$/;
+
+// ---------- Validación ----------
+
+function validarCampo(campo: CampoTexto, valores: FormState): string | undefined {
+  switch (campo) {
+    case 'nombreCliente':
+      return valores.nombreCliente.trim()
+        ? undefined
+        : 'El nombre es obligatorio.';
+
+    case 'email': {
+      const valor = valores.email.trim();
+      if (!valor) return 'El correo es obligatorio.';
+      if (!REGEX_EMAIL.test(valor)) return 'Ingresa un correo válido.';
+      return undefined;
+    }
+
+    case 'telefono': {
+      const valor = valores.telefono.trim();
+      if (!valor) return 'El teléfono es obligatorio.';
+      if (!REGEX_TELEFONO.test(valor)) return 'Ingresa un teléfono válido.';
+      return undefined;
+    }
+
+    default:
+      return undefined;
   }
-  return {
-    codigo: pelicula.codigo,
-    nombre: pelicula.nombre,
-    genero: pelicula.genero,
-    duracion: String(pelicula.duracion),
-    clasificacion: pelicula.clasificacion,
-    salaAsignada: pelicula.salaAsignada,
-    precio: String(pelicula.precio),
-    estado: pelicula.estado,
-    posterImage: pelicula.posterImage ?? '',
-  };
 }
 
-export default function FormularioPeliculaScreen({
-  visible,
-  peliculaEditar,
-  onClose,
-}: FormularioPeliculaScreenProps) {
+const CAMPOS: { campo: CampoTexto; etiqueta: string; placeholder: string; keyboardType?: 'default' | 'email-address' | 'phone-pad' }[] = [
+  { campo: 'nombreCliente', etiqueta: 'Nombre completo', placeholder: 'Ej. Ana Martínez' },
+  { campo: 'email', etiqueta: 'Correo electrónico', placeholder: 'ana@correo.com', keyboardType: 'email-address' },
+  { campo: 'telefono', etiqueta: 'Teléfono', placeholder: '7123 4567', keyboardType: 'phone-pad' },
+];
+
+// ---------- Componente / Pantalla ----------
+
+export default function FormularioVenta({ navigation, route }: Props) {
+  const { funcionId, pelicula, asientos, total } = route.params;
   const dispatch = useAppDispatch();
-  const peliculas = useAppSelector((state) => state.peliculas.lista);
 
-  const [form, setForm] = useState<FormState>(estadoInicial(peliculaEditar));
+  const [valores, setValores] = useState<FormState>(VALOR_INICIAL);
   const [errores, setErrores] = useState<Errores>({});
-  const [intentoEnviar, setIntentoEnviar] = useState(false);
 
-  // Se resetea el formulario cada vez que la modal se abre con una película distinta
-  React.useEffect(() => {
-    if (visible) {
-      setForm(estadoInicial(peliculaEditar));
-      setErrores({});
-      setIntentoEnviar(false);
+  function actualizarCampo(campo: CampoTexto, valor: string) {
+    setValores((prev) => ({ ...prev, [campo]: valor }));
+    if (errores[campo]) {
+      setErrores((prev) => ({ ...prev, [campo]: undefined }));
     }
-  }, [visible, peliculaEditar]);
+  }
 
-  const validarCampo = (campo: CampoTexto, valores: FormState): string | undefined => {
-    switch (campo) {
-      case 'nombre':
-        return valores.nombre.trim() ? undefined : 'El nombre es obligatorio.';
-
-      case 'codigo': {
-        if (!valores.codigo.trim()) return 'El código es obligatorio.';
-        const duplicado = peliculas.some(
-          (p) =>
-            p.codigo.trim().toLowerCase() === valores.codigo.trim().toLowerCase() &&
-            p.id !== peliculaEditar?.id
-        );
-        return duplicado ? 'Ya existe una película con este código.' : undefined;
-      }
-
-      case 'precio': {
-        if (valores.precio === '') return 'El precio es obligatorio.';
-        const precioNum = Number(valores.precio);
-        if (Number.isNaN(precioNum)) return 'Ingresa un precio válido.';
-        if (precioNum < 0) return 'El precio no puede ser negativo.';
-        if (precioNum === 0) return 'El precio debe ser mayor a 0.';
-        return undefined;
-      }
-
-      case 'duracion': {
-        if (valores.duracion === '') return 'La duración es obligatoria.';
-        const duracionNum = Number(valores.duracion);
-        if (Number.isNaN(duracionNum)) return 'Ingresa una duración válida.';
-        if (duracionNum <= 0) return 'La duración debe ser mayor a 0.';
-        return undefined;
-      }
-
-      case 'genero':
-        return valores.genero.trim() ? undefined : 'El género es obligatorio.';
-
-      case 'clasificacion':
-        return valores.clasificacion.trim() ? undefined : 'La clasificación es obligatoria.';
-
-      case 'salaAsignada':
-        return valores.salaAsignada.trim() ? undefined : 'La sala asignada es obligatoria.';
-
-      default:
-        return undefined;
-    }
-  };
-
-  const CAMPOS: CampoTexto[] = [
-    'codigo',
-    'nombre',
-    'genero',
-    'duracion',
-    'clasificacion',
-    'salaAsignada',
-    'precio',
-  ];
-
-  const validarTodo = (valores: FormState): Errores => {
+  function validarFormulario(): boolean {
     const nuevosErrores: Errores = {};
-    for (const campo of CAMPOS) {
-      const mensaje = validarCampo(campo, valores);
-      if (mensaje) nuevosErrores[campo] = mensaje;
+    for (const { campo } of CAMPOS) {
+      const error = validarCampo(campo, valores);
+      if (error) nuevosErrores[campo] = error;
     }
-    return nuevosErrores;
-  };
-
-  const actualizar = (campo: CampoTexto, valor: string) => {
-    const nuevoForm = { ...form, [campo]: valor };
-    setForm(nuevoForm);
-    if (intentoEnviar) {
-      setErrores((prev) => ({ ...prev, [campo]: validarCampo(campo, nuevoForm) }));
-    }
-  };
-
-  // Abre la galería del dispositivo y guarda la URI local de la imagen elegida
-  const elegirImagen = async () => {
-    const permiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permiso.granted) {
-      Alert.alert(
-        'Permiso necesario',
-        'Necesitamos acceso a tus fotos para poder elegir un poster.'
-      );
-      return;
-    }
-
-     const resultado = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [2, 3],
-      quality: 0.5,
-      base64: true,
-    });
-
-    if (!resultado.canceled && resultado.assets.length > 0) {
-      const asset = resultado.assets[0];
-
-      if (!asset.base64) {
-        Alert.alert('No se pudo procesar la imagen', 'Intenta con otra foto.');
-        return;
-      }
-
-      // Se guarda como base64 (data URI)
-      // El base64 queda guardado directo dentro del dato de la película
-      const mime = asset.mimeType ?? 'image/jpeg';
-      const dataUri = `data:${mime};base64,${asset.base64}`;
-      setForm((prev) => ({ ...prev, posterImage: dataUri }));
-    }
-  };
-
-  const quitarImagen = () => {
-    setForm((prev) => ({ ...prev, posterImage: '' }));
-  };
-
-  const handleGuardar = () => {
-    setIntentoEnviar(true);
-    const nuevosErrores = validarTodo(form);
     setErrores(nuevosErrores);
-    if (Object.keys(nuevosErrores).length > 0) return;
+    return Object.keys(nuevosErrores).length === 0;
+  }
 
-    const payload: Pelicula = {
-      id: peliculaEditar?.id ?? Date.now().toString(),
-      codigo: form.codigo.trim(),
-      nombre: form.nombre.trim(),
-      genero: form.genero.trim(),
-      duracion: Number(form.duracion),
-      clasificacion: form.clasificacion.trim(),
-      salaAsignada: form.salaAsignada.trim(),
-      precio: Number(form.precio),
-      estado: form.estado,
-      posterImage: form.posterImage || undefined,
-    };
+  function confirmarVenta() {
+    if (!validarFormulario()) return;
 
-    if (peliculaEditar) {
-      dispatch(editarPelicula(payload));
-    } else {
-      dispatch(agregarPelicula(payload));
-    }
+    dispatch(
+      agregarReserva({
+        funcionId,
+        peliculaId: pelicula.id,
+        asientos,
+        total,
+        cliente: valores,
+      })
+    );
 
-    onClose();
-  };
+    dispatch(marcarAsientosOcupados({ funcionId, asientos }));
 
-  const hayErrores = Object.values(errores).some(Boolean);
-
-  const renderCampo = (
-    campo: CampoTexto,
-    etiqueta: string,
-    opciones?: { teclado?: 'default' | 'numeric' | 'decimal-pad'; placeholder?: string }
-  ) => (
-    <View style={styles.campo}>
-      <Text style={styles.etiqueta}>{etiqueta}</Text>
-      <TextInput
-        style={[styles.input, errores[campo] && styles.inputError]}
-        value={form[campo]}
-        onChangeText={(valor) => actualizar(campo, valor)}
-        placeholder={opciones?.placeholder}
-        placeholderTextColor={colors.textDim}
-        keyboardType={opciones?.teclado ?? 'default'}
-      />
-      {errores[campo] && <Text style={styles.errorTexto}>{errores[campo]}</Text>}
-    </View>
-  );
+    Alert.alert(
+      'Compra confirmada',
+      `Se compraron ${asientos.length} asiento(s) por $${total.toFixed(2)}.`,
+      [
+        {
+          text: 'Aceptar',
+          onPress: () => navigation.popToTop(),
+        },
+      ]
+    );
+  }
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={styles.tarjetaContenedor}
-        >
-          <View style={styles.tarjeta}>
-            <View style={styles.header}>
-              <Text style={styles.titulo}>
-                {peliculaEditar ? 'Editar película' : 'Agregar película'}
-              </Text>
-              <TouchableOpacity onPress={onClose}>
-                <Text style={styles.cerrar}>×</Text>
-              </TouchableOpacity>
-            </View>
+    <KeyboardAvoidingView
+      style={styles.contenedor}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContenido}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.titulo}>Datos del cliente</Text>
 
-            {intentoEnviar && hayErrores && (
-              <View style={styles.alerta}>
-                <Text style={styles.alertaTexto}>
-                  Revisa los campos en rojo antes de continuar.
-                </Text>
-              </View>
+        <View style={styles.resumen}>
+          <Text style={styles.resumenPelicula}>{pelicula.nombre}</Text>
+          <Text style={styles.resumenLinea}>{pelicula.salaAsignada}</Text>
+          <Text style={styles.resumenLinea}>
+            Asientos: {asientos.join(', ')}
+          </Text>
+          <Text style={styles.resumenTotal}>Total: ${total.toFixed(2)}</Text>
+        </View>
+
+        {CAMPOS.map(({ campo, etiqueta, placeholder, keyboardType }) => (
+          <View key={campo} style={styles.campo}>
+            <Text style={styles.etiqueta}>{etiqueta}</Text>
+            <TextInput
+              style={[styles.input, errores[campo] && styles.inputError]}
+              placeholder={placeholder}
+              placeholderTextColor={colors.textDim}
+              value={valores[campo]}
+              onChangeText={(texto) => actualizarCampo(campo, texto)}
+              keyboardType={keyboardType ?? 'default'}
+              autoCapitalize={campo === 'email' ? 'none' : 'words'}
+            />
+            {errores[campo] && (
+              <Text style={styles.errorTexto}>{errores[campo]}</Text>
             )}
-
-            <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-              {renderCampo('codigo', 'Código', { placeholder: 'PEL-006' })}
-              {renderCampo('nombre', 'Nombre', { placeholder: 'Título de la película' })}
-              {renderCampo('genero', 'Género', { placeholder: 'Acción, Comedia...' })}
-              {renderCampo('duracion', 'Duración (min)', {
-                teclado: 'numeric',
-                placeholder: '120',
-              })}
-              {renderCampo('clasificacion', 'Clasificación', { placeholder: 'A, B, C' })}
-              {renderCampo('salaAsignada', 'Sala asignada', { placeholder: 'Sala 1' })}
-              {renderCampo('precio', 'Precio ($)', {
-                teclado: 'decimal-pad',
-                placeholder: '4.50',
-              })}
-              
-              <View style={styles.campo}>
-                <Text style={styles.etiqueta}>Poster (opcional)</Text>
-                <View style={styles.posterFila}>
-                  {form.posterImage ? (
-                    <Image source={{ uri: form.posterImage }} style={styles.posterPreview} />
-                  ) : (
-                    <View style={[styles.posterPreview, styles.posterPreviewVacio]}>
-                      <Text style={styles.posterPreviewTexto}>Sin imagen</Text>
-                    </View>
-                  )}
-                  <View style={styles.posterAcciones}>
-                    <TouchableOpacity style={styles.botonSecundario} onPress={elegirImagen}>
-                      <Text style={styles.botonSecundarioTexto}>
-                        {form.posterImage ? 'Cambiar imagen' : 'Subir imagen'}
-                      </Text>
-                    </TouchableOpacity>
-                    {form.posterImage && (
-                      <TouchableOpacity onPress={quitarImagen}>
-                        <Text style={styles.quitarTexto}>Quitar</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-              </View>
-
-              <View style={styles.campo}>
-                <Text style={styles.etiqueta}>Estado</Text>
-                <View style={styles.estadoToggle}>
-                  <TouchableOpacity
-                    style={[
-                      styles.estadoOpcion,
-                      form.estado === 'disponible' && styles.estadoOpcionActiva,
-                    ]}
-                    onPress={() => setForm((prev) => ({ ...prev, estado: 'disponible' }))}
-                  >
-                    <Text
-                      style={[
-                        styles.estadoTexto,
-                        form.estado === 'disponible' && styles.estadoTextoActivo,
-                      ]}
-                    >
-                      Disponible
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.estadoOpcion,
-                      form.estado === 'no disponible' && styles.estadoOpcionActiva,
-                    ]}
-                    onPress={() => setForm((prev) => ({ ...prev, estado: 'no disponible' }))}
-                  >
-                    <Text
-                      style={[
-                        styles.estadoTexto,
-                        form.estado === 'no disponible' && styles.estadoTextoActivo,
-                      ]}
-                    >
-                      No disponible
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </ScrollView>
-
-            <View style={styles.acciones}>
-              <TouchableOpacity style={styles.botonSecundario} onPress={onClose}>
-                <Text style={styles.botonSecundarioTexto}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.botonPrimario} onPress={handleGuardar}>
-                <Text style={styles.botonPrimarioTexto}>
-                  {peliculaEditar ? 'Guardar cambios' : 'Agregar película'}
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
-        </KeyboardAvoidingView>
-      </View>
-    </Modal>
+        ))}
+
+        <View style={styles.acciones}>
+          <TouchableOpacity
+            style={styles.botonSecundario}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.botonSecundarioTexto}>Volver</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.botonPrimario}
+            onPress={confirmarVenta}
+          >
+            <Text style={styles.botonPrimarioTexto}>Confirmar venta</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  contenedor: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.75)',
-    justifyContent: 'flex-end',
-  },
-  tarjetaContenedor: {
-    width: '100%',
-  },
-  tarjeta: {
     backgroundColor: colors.bgPanel,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    padding: spacing.lg,
-    maxHeight: '90%',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
+  scrollContenido: {
+    padding: spacing.lg,
   },
   titulo: {
     color: colors.textPrimary,
     fontSize: typography.title,
     fontWeight: '700',
-  },
-  cerrar: {
-    color: colors.textMuted,
-    fontSize: 26,
-  },
-  alerta: {
-    backgroundColor: 'rgba(229, 9, 20, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(229, 9, 20, 0.4)',
-    borderRadius: radius.sm,
-    padding: spacing.sm,
     marginBottom: spacing.md,
   },
-  alertaTexto: {
-    color: '#ff6b6b',
-    fontSize: typography.small,
+  resumen: {
+    backgroundColor: colors.bgElevated,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
   },
-  scroll: {
-    maxHeight: 420,
+  resumenPelicula: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    fontWeight: '700',
+  },
+  resumenLinea: {
+    color: colors.textMuted,
+    fontSize: typography.small,
+    marginTop: 2,
+  },
+  resumenTotal: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    fontWeight: '700',
+    marginTop: spacing.sm,
   },
   campo: {
     marginBottom: spacing.md,
@@ -441,61 +248,6 @@ const styles = StyleSheet.create({
     color: colors.red,
     fontSize: typography.tiny,
     marginTop: 4,
-  },
-  estadoToggle: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  estadoOpcion: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    alignItems: 'center',
-  },
-  estadoOpcionActiva: {
-    backgroundColor: colors.red,
-    borderColor: colors.red,
-  },
-  estadoTexto: {
-    color: colors.textMuted,
-    fontSize: typography.small,
-    fontWeight: '600',
-  },
-  estadoTextoActivo: {
-    color: colors.textPrimary,
-  },
-  posterFila: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  posterPreview: {
-    width: 70,
-    height: 96,
-    borderRadius: radius.sm,
-  },
-  posterPreviewVacio: {
-    backgroundColor: colors.bgElevated,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  posterPreviewTexto: {
-    color: colors.textDim,
-    fontSize: typography.tiny,
-    textAlign: 'center',
-  },
-  posterAcciones: {
-    gap: spacing.sm,
-  },
-  quitarTexto: {
-    color: colors.red,
-    fontSize: typography.small,
-    fontWeight: '600',
   },
   acciones: {
     flexDirection: 'row',

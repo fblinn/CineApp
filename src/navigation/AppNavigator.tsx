@@ -9,6 +9,7 @@ import { colors } from '@/theme';
 import DetallePelicula from '@/screens/DetallePelicula';
 import { Pelicula } from '@/types/pelicula';
 import MapaAsientosScreen from '@/screens/MapaAsientosScreen';
+import FormularioVenta from '@/screens/FormularioVenta';
 
 // Rutas de la app. Cuando se agregue la biometría, el paso de "Catalogo" a
 // "GestionPeliculas" se intercepta ahí antes de navegar.
@@ -21,8 +22,13 @@ export type RootStackParamList = {
   DetallePelicula: { peliculaId: string };
   SeleccionAsientos: {
   funcionId: string;
-  pelicula: Pelicula;
-};
+  pelicula: Pelicula;};
+  FormularioVenta: {
+    funcionId: string;
+    pelicula: Pelicula;
+    asientos: string[];
+    total: number;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -55,6 +61,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Dashboard" component={DashboardScreen} />
         <Stack.Screen name="DetallePelicula" component={DetallePelicula} />
         <Stack.Screen name="SeleccionAsientos" component={MapaAsientosScreen} />
+        <Stack.Screen name="FormularioVenta" component={FormularioVenta} />
       </Stack.Navigator>
     </NavigationContainer>
   );

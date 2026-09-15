@@ -6,8 +6,9 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { RouteProp, useRoute } from "@react-navigation/native";
-import type { RootStackParamList } from '@/navigation/AppNavigator';
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "@/navigation/AppNavigator";
+import { useAppSelector } from "@/redux/hooks";
 
 // ---------- Tipos ----------
 
@@ -20,25 +21,20 @@ interface Asiento {
   estado: EstadoAsiento;
 }
 
-type SeleccionAsientosRouteProp = RouteProp<
-  RootStackParamList,
-  "SeleccionAsientos"
->;
+type Props = NativeStackScreenProps<RootStackParamList, "SeleccionAsientos">;
 
 const FILAS = 7;
 const COLUMNAS = 10;
 
-const OCUPADOS_POR_DEFECTO = [
-  "A3", "A4", "C5", "C6", "C7", "D2", "F8", "F9", "G1",
-];
-
 // ---------- Generación de la sala ----------
-// (función pura, sin hooks — solo arma la matriz de asientos)
+// (función pura, sin hooks — solo arma la matriz de asientos a partir
+// de los ocupados del store y la selección local del usuario)
 
 function generarSala(
   filas: number,
   columnas: number,
-  ocupados: Set<string>
+  ocupados: Set<string>,
+  seleccionados: Set<string>
 ): Asiento[][] {
   const letras = Array.from({ length: filas }, (_, i) =>
     String.fromCharCode(65 + i) // A, B, C, ...
@@ -48,12 +44,11 @@ function generarSala(
     const asientos: Asiento[] = [];
     for (let n = 1; n <= columnas; n++) {
       const id = `${fila}${n}`;
-      asientos.push({
-        id,
-        fila,
-        numero: n,
-        estado: ocupados.has(id) ? "ocupado" : "disponible",
-      });
+      let estado: EstadoAsiento = "disponible";
+      if (ocupados.has(id)) estado = "ocupado";
+      else if (seleccionados.has(id)) estado = "seleccionado";
+
+      asientos.push({ id, fila, numero: n, estado });
     }
     return asientos;
   });
@@ -61,19 +56,29 @@ function generarSala(
 
 // ---------- Componente / Pantalla ----------
 
-export default function SeleccionAsientosScreen() {
-  // Aquí SÍ va el hook: dentro del componente, no dentro de generarSala.
-  const route = useRoute<SeleccionAsientosRouteProp>();
+export default function SeleccionAsientosScreen({ navigation, route }: Props) {
   const { funcionId, pelicula } = route.params;
 
-  // TODO: cuando tengas backend, reemplaza esto por un fetch usando funcionId
-  // para traer los asientos ocupados de ESA función específica.
-  const asientosOcupados = OCUPADOS_POR_DEFECTO;
+  const asientosOcupados = useAppSelector(
+    (state) => state.asientos.ocupadosPorFuncion[funcionId] ?? []
+  );
 
   const noDisponible = pelicula.estado === "no disponible";
 
-  const [sala, setSala] = useState<Asiento[][]>(() =>
-    generarSala(FILAS, COLUMNAS, new Set(asientosOcupados))
+  // Solo guardamos localmente los IDs que el usuario va seleccionando.
+  const [seleccionadosIds, setSeleccionadosIds] = useState<Set<string>>(
+    new Set()
+  );
+
+  const sala = useMemo(
+    () =>
+      generarSala(
+        FILAS,
+        COLUMNAS,
+        new Set(asientosOcupados),
+        seleccionadosIds
+      ),
+    [asientosOcupados, seleccionadosIds]
   );
 
   const seleccionados = useMemo(
@@ -88,34 +93,32 @@ export default function SeleccionAsientosScreen() {
 
   function alternarAsiento(id: string) {
     if (noDisponible) return;
-    setSala((prev) =>
-      prev.map((fila) =>
-        fila.map((asiento) => {
-          if (asiento.id !== id || asiento.estado === "ocupado") return asiento;
-          return {
-            ...asiento,
-            estado:
-              asiento.estado === "seleccionado" ? "disponible" : "seleccionado",
-          };
-        })
-      )
-    );
+    // No permitir tocar un asiento que ya está ocupado en el store.
+    if (asientosOcupados.includes(id)) return;
+
+    setSeleccionadosIds((prev) => {
+      const siguiente = new Set(prev);
+      if (siguiente.has(id)) siguiente.delete(id);
+      else siguiente.add(id);
+      return siguiente;
+    });
   }
 
   function confirmarCompra() {
     if (seleccionados.length === 0) return;
-    const ids = seleccionados.map((a) => a.id);
-    setSala((prev) =>
-      prev.map((fila) =>
-        fila.map((asiento) =>
-          asiento.estado === "seleccionado"
-            ? { ...asiento, estado: "ocupado" }
-            : asiento
-        )
-      )
-    );
-    console.log("Función:", funcionId, "Asientos:", ids, "Total:", total);
-    // Aquí llamarías a tu API para guardar la compra.
+
+    // Pasamos solo los IDs (strings), no los objetos Asiento completos.
+    // OJO: aquí NO marcamos como ocupados todavía — eso se hace hasta que
+    // se confirme la venta en FormularioVenta, para no "reservar" asientos
+    // si el usuario se arrepiente antes de pagar.
+    const ids = Array.from(seleccionadosIds);
+
+    navigation.navigate("FormularioVenta", {
+      funcionId,
+      pelicula,
+      asientos: ids,
+      total,
+    });
   }
 
   return (
