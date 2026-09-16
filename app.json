@@ -37,6 +37,18 @@
         {
           "cameraPermission": "Permitimos el acceso a la cámara para escanear boletos."
         }
+      ],
+      [
+         "expo-local-authentication",
+          {
+            "faceIDPermission": "Usamos Face ID para verificar que eres personal autorizado del cine."
+          }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Necesitamos acceso a tus fotos para elegir el poster de la película."
+        }
       ]
     ],
     "experiments": {
