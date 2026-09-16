@@ -23,6 +23,7 @@ export type RootStackParamList = {
     sala: string;
   };
   GeneradorQR: { reservaId: string };
+  HistorialBoletos: undefined;
 };
 
 export default function AppNavigator() {
