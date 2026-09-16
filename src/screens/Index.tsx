@@ -215,6 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgBase,
     paddingHorizontal: spacing.md,
     paddingTop: spacing.lg,
+    paddingBottom: 2,
   },
   titulo: {
     color: colors.textPrimary,
@@ -241,8 +242,9 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   filtrosScroll: {
-    marginBottom: spacing.sm,
+    marginBottom: 8,
     maxHeight: 45,
+    marginTop: 2,
   },
   filtrosFila: {
     gap: spacing.sm,
@@ -250,6 +252,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: spacing.md,
     justifyContent: 'center',
+    marginBottom: spacing.sm,
   },
   chip: {
     backgroundColor: colors.bgElevated,
@@ -332,5 +335,6 @@ const styles = StyleSheet.create({
   },
   lista: {
     paddingBottom: spacing.xl,
+    paddingTop: 2,
   },
 });
