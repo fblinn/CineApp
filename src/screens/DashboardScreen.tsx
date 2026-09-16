@@ -9,6 +9,18 @@ import { colors, radius, spacing, typography, fontDisplay } from '@/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
+// constante para grafica
+const ALTURA_MAX_BARRA = 110;
+
+// Fecha usando la hora local del dispositivo,
+// no UTC )evita el desfase de toISOString() según la zona horaria=
+function formatearFechaLocal(fecha: Date): string {
+  const y = fecha.getFullYear();
+  const m = String(fecha.getMonth() + 1).padStart(2, '0');
+  const d = String(fecha.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 export default function DashboardScreen({ navigation }: Props) {
   const peliculas = useAppSelector((state) => state.peliculas.lista);
   const funciones = useAppSelector(selectFunciones);
@@ -74,6 +86,36 @@ export default function DashboardScreen({ navigation }: Props) {
     return peliculas.find((p) => p.id === mejorId)?.nombre ?? 'Desconocida';
   }, [reservas, peliculas]);
 
+  // Ventas (ingresos) de los últimos 7 días, agrupadas por fecha.
+  // "reserva.fecha" se guarda como ISO completo (new Date().toISOString()),
+  // así que solo tomamos la parte "YYYY-MM-DD" para agrupar por día.
+  const ventasPorDia = useMemo(() => {
+    const hoy = new Date();
+    const dias: { clave: string; etiqueta: string; monto: number }[] = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(hoy);
+      d.setDate(hoy.getDate() - i);
+      dias.push({
+        clave: formatearFechaLocal(d),
+        etiqueta: d.toLocaleDateString('es', { weekday: 'short' }).replace('.', ''),
+        monto: 0,
+      });
+    }
+
+    reservas.forEach((r) => {
+      if (r.estado === 'cancelada') return;
+      if (!r.fecha) return; // reserva vieja/incompleta sin fecha, se ignora
+      const clave = r.fecha.includes('T') ? r.fecha.split('T')[0] : r.fecha;
+      const dia = dias.find((d) => d.clave === clave);
+      if (dia) dia.monto += Number(r.monto) || 0;
+    });
+
+    return dias;
+  }, [reservas]);
+
+  const maxVentaDia = Math.max(...ventasPorDia.map((d) => d.monto), 1);
+
   return (
     <SafeAreaView style={styles.contenedor} edges={['top']}>
       <View style={styles.header}>
@@ -105,6 +147,40 @@ export default function DashboardScreen({ navigation }: Props) {
             {peliculaMasReservada ?? 'Aún no hay reservas'}
           </Text>
         </View>
+
+        {/* Gráfico de ventas de los últimos 7 días */}
+        <View style={styles.tarjetaGrafica}>
+          <Text style={styles.tarjetaGraficaTitulo}>Ventas de los últimos 7 días</Text>
+
+          <View style={styles.grafica}>
+            {ventasPorDia.map((dia) => {
+              const alturaBarra =
+                dia.monto === 0 ? 2 : Math.max((dia.monto / maxVentaDia) * ALTURA_MAX_BARRA, 4);
+              const esHoy = dia.clave === formatearFechaLocal(new Date());
+
+              return (
+                <View key={dia.clave} style={styles.columnaBarra}>
+                  {dia.monto > 0 && (
+                    <Text style={styles.valorBarra}>${dia.monto.toFixed(0)}</Text>
+                  )}
+                  <View style={styles.pistaBarra}>
+                    <View
+                      style={[
+                        styles.barra,
+                        { height: alturaBarra },
+                        esHoy && styles.barraHoy,
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.etiquetaBarra, esHoy && styles.etiquetaBarraHoy]}>
+                    {dia.etiqueta}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -212,6 +288,56 @@ const styles = StyleSheet.create({
   tarjetaAnchaValor: {
     color: colors.textPrimary,
     fontSize: typography.title,
+    fontWeight: '700',
+  },
+   tarjetaGrafica: {
+    marginTop: spacing.sm,
+    backgroundColor: colors.bgPanel,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  tarjetaGraficaTitulo: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    fontWeight: '700',
+    marginBottom: spacing.md,
+  },
+  grafica: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  columnaBarra: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  valorBarra: {
+    color: colors.textDim,
+    fontSize: 9,
+    marginBottom: 2,
+  },
+  pistaBarra: {
+    height: ALTURA_MAX_BARRA,
+    justifyContent: 'flex-end',
+  },
+  barra: {
+    width: 18,
+    backgroundColor: colors.bgElevated,
+    borderRadius: 4,
+  },
+  barraHoy: {
+    backgroundColor: colors.red,
+  },
+  etiquetaBarra: {
+    color: colors.textMuted,
+    fontSize: typography.tiny,
+    marginTop: spacing.xs,
+    textTransform: 'capitalize',
+  },
+  etiquetaBarraHoy: {
+    color: colors.textPrimary,
     fontWeight: '700',
   },
 });

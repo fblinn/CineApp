@@ -188,7 +188,7 @@ export default function CrearFuncionScreen({ navigation }: Props) {
               mode="date"
               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
               minimumDate={new Date()}
-              onChange={handleCambiarFecha}
+              onValueChange={handleCambiarFecha}
             />
           )}
         </View>
@@ -203,7 +203,7 @@ export default function CrearFuncionScreen({ navigation }: Props) {
               value={horaObj}
               mode="time"
               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={handleCambiarHora}
+              onValueChange={handleCambiarHora}
             />
           )}
         </View>
