@@ -105,10 +105,27 @@ export default function DashboardScreen({ navigation }: Props) {
 
     reservas.forEach((r) => {
       if (r.estado === 'cancelada') return;
-      if (!r.fecha) return; // reserva vieja/incompleta sin fecha, se ignora
-      const clave = r.fecha.includes('T') ? r.fecha.split('T')[0] : r.fecha;
-      const dia = dias.find((d) => d.clave === clave);
-      if (dia) dia.monto += Number(r.monto) || 0;
+      if (!r.fecha) return;
+
+      let claveReserva = '';
+      
+      // Intentamos parsear la fecha de forma segura sin importar su formato
+      try {
+        const fechaObj = new Date(r.fecha);
+        if (!isNaN(fechaObj.getTime())) {
+          claveReserva = formatearFechaLocal(fechaObj);
+        } else {
+          // Si falla el objeto Date, recurrimos a limpiar el string manualmente
+          claveReserva = r.fecha.includes('T') ? r.fecha.split('T')[0] : r.fecha.trim();
+        }
+      } catch {
+        claveReserva = r.fecha.includes('T') ? r.fecha.split('T')[0] : r.fecha.trim();
+      }
+
+      const dia = dias.find((d) => d.clave === claveReserva);
+      if (dia) {
+        dia.monto += Number(r.monto) || 0;
+      }
     });
 
     return dias;
@@ -299,7 +316,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   tarjetaGraficaTitulo: {
-    color: colors.textPrimary,
+    color: colors.textMuted,
     fontSize: typography.body,
     fontWeight: '700',
     marginBottom: spacing.md,
