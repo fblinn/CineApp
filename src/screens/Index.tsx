@@ -14,7 +14,7 @@ import { autenticarPersonal } from '@/utils/biometria';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { cambiarEstadoPelicula } from '@/redux/slices/peliculasSlice';
 import { colors, radius, spacing, typography } from '@/theme';
-import PeliculaCard from '@/components/PeliculaCard'; 
+import PeliculaCard from '@/components/PeliculaCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
 
@@ -66,7 +66,7 @@ export default function IndexScreen({ navigation }: Props) {
 
   // datos biometricos del personal
   const accederZonaPersonal = async () => {
-  const resultado = await autenticarPersonal();
+    const resultado = await autenticarPersonal();
 
     if (resultado.exito) {
       navigation.navigate('GestionPeliculas');
@@ -116,10 +116,6 @@ export default function IndexScreen({ navigation }: Props) {
         />
       </ScrollView>
 
-      <TouchableOpacity style={styles.botonSiguiente} onPress={accederZonaPersonal}>
-        <Text>Vista de admin</Text>
-      </TouchableOpacity>
-
       {peliculasFiltradas.length === 0 ? (
         <View style={styles.vacio}>
           <Text style={styles.vacioTitulo}>No se encontraron películas</Text>
@@ -135,13 +131,13 @@ export default function IndexScreen({ navigation }: Props) {
           columnWrapperStyle={{ gap: spacing.sm, paddingHorizontal: spacing.sm }}
           contentContainerStyle={styles.lista}
           renderItem={({ item }) => (
-              <PeliculaCard
+            <PeliculaCard
               pelicula={item}
               onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
               onPress={() =>
                 navigation.navigate('DetallePelicula', { peliculaId: item.id })
               }
-              />
+            />
           )}
         />
       )}
@@ -214,11 +210,6 @@ function FiltroChip({
 }
 
 const styles = StyleSheet.create({
-  headerContainer: {
-    flex: 1,                  
-    justifyContent: 'center', 
-    alignItems: 'center',     
-  },
   contenedor: {
     flex: 1,
     backgroundColor: colors.bgBase,
@@ -251,7 +242,7 @@ const styles = StyleSheet.create({
   },
   filtrosScroll: {
     marginBottom: spacing.sm,
-    maxHeight:45,
+    maxHeight: 45,
   },
   filtrosFila: {
     gap: spacing.sm,
@@ -314,7 +305,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.body,
   },
-  botonSiguiente:{
+  botonSiguiente: {
     backgroundColor: colors.bgElevated,
     borderWidth: 1,
     borderColor: colors.borderSubtle,
@@ -324,18 +315,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.body,
     marginBottom: spacing.sm,
-  },
-  botonAgregar: {
-    backgroundColor: colors.red,
-    borderRadius: radius.sm,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  botonAgregarTexto: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: typography.small,
   },
   vacio: {
     paddingVertical: spacing.xl,
@@ -351,68 +330,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: typography.small,
   },
-  lista : {
+  lista: {
     paddingBottom: spacing.xl,
-  },
-  listaVacia: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  confirmOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.75)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  confirmTarjeta: {
-    width: '100%',
-    backgroundColor: colors.bgPanel,
-    borderRadius: radius.md,
-    padding: spacing.lg,
-  },
-  confirmTitulo: {
-    color: colors.textPrimary,
-    fontSize: typography.title,
-    fontWeight: '700',
-    marginBottom: spacing.sm,
-  },
-  confirmTexto: {
-    color: colors.textMuted,
-    fontSize: typography.small,
-    lineHeight: 20,
-    marginBottom: spacing.lg,
-  },
-  confirmNombre: {
-    color: colors.textPrimary,
-    fontWeight: '700',
-  },
-  confirmAcciones: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
-  },
-  botonSecundario: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-  },
-  botonSecundarioTexto: {
-    color: colors.textPrimary,
-    fontSize: typography.small,
-    fontWeight: '600',
-  },
-  botonPeligro: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: radius.sm,
-    backgroundColor: colors.red,
-  },
-  botonPrimarioTexto: {
-    color: '#fff',
-    fontSize: typography.small,
-    fontWeight: '700',
   },
 });

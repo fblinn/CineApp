@@ -1,9 +1,11 @@
-// @/navigation/TabNavigator.tsx
+
 import React from 'react';
+import { Alert } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/theme';
+import { autenticarPersonal } from '@/utils/biometria';
 import type { RootStackParamList } from './AppNavigator';
 
 import IndexScreen from '@/screens/Index';
@@ -17,8 +19,6 @@ import CrearFuncionScreen from '@/screens/CrearFuncionScreen';
 import DashboardScreen from '@/screens/DashboardScreen';
 import EscanerScreen from '@/screens/EscanerScreen';
 
-//import MisBoletosScreen from '@/screens/HistorialBoletos';
-
 export type TabParamList = {
   Cartelera: undefined;
   MisBoletos: undefined;
@@ -27,8 +27,6 @@ export type TabParamList = {
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-// Cada stack usa el MISMO RootStackParamList, solo registra
-// el subconjunto de rutas que le corresponde a ese tab.
 const CarteleraStack = createNativeStackNavigator<RootStackParamList>();
 const AdminStack = createNativeStackNavigator<RootStackParamList>();
 
@@ -72,13 +70,31 @@ export default function TabNavigator() {
             MisBoletos: 'ticket-outline',
             Admin: 'settings-outline',
           };
-          return <Ionicons name={iconos[route.name as keyof TabParamList]} size={size} color={color} />;
+          return <Ionicons name={iconos[route.name as keyof TabParamList] as any} size={size} color={color} />;
         },
       })}
     >
       <Tab.Screen name="Cartelera" component={CarteleraStackScreen} />
-      {/* <Tab.Screen name="MisBoletos" component={MisBoletosScreen} options={{ title: 'Mis Boletos' }} /> */}
-      <Tab.Screen name="Admin" component={AdminStackScreen} />
+
+      <Tab.Screen
+        name="Admin"
+        component={AdminStackScreen}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // Siempre bloqueamos el cambio de tab por defecto...
+            e.preventDefault();
+
+            // ...y solo dejamos entrar si la biometría es exitosa.
+            autenticarPersonal().then((resultado) => {
+              if (resultado.exito) {
+                navigation.navigate('Admin');
+              } else if (resultado.mensaje) {
+                Alert.alert('Acceso denegado', resultado.mensaje);
+              }
+            });
+          },
+        })}
+      />
     </Tab.Navigator>
   );
 }
