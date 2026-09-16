@@ -76,6 +76,8 @@ export default function DetallePeliculas({ navigation, route }: Props) {
               navigation.navigate('SeleccionAsientos', {
                 funcionId: item.id,
                 pelicula,
+                fecha: item.fecha,
+                hora: item.hora,
               })
             }
           >
