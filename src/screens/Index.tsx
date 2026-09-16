@@ -12,7 +12,6 @@ import {
 import { Alert } from 'react-native';
 import { autenticarPersonal } from '@/utils/biometria';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { cambiarEstadoPelicula } from '@/redux/slices/peliculasSlice';
 import { colors, radius, spacing, typography } from '@/theme';
 import PeliculaCard from '@/components/PeliculaCard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -23,7 +22,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Catalogo'>;
 const TODOS = 'Todos';
 
 export default function IndexScreen({ navigation }: Props) {
-  const dispatch = useAppDispatch();
   const peliculas = useAppSelector((state) => state.peliculas.lista);
 
   const [busqueda, setBusqueda] = useState('');
@@ -48,6 +46,9 @@ export default function IndexScreen({ navigation }: Props) {
     const termino = busqueda.trim().toLowerCase();
 
     return peliculas.filter((p) => {
+      if (p.estado !== 'disponible') {
+        return false;
+      }
       const coincideBusqueda =
         termino === '' ||
         p.nombre.toLowerCase().includes(termino) ||
@@ -133,9 +134,10 @@ export default function IndexScreen({ navigation }: Props) {
           renderItem={({ item }) => (
             <PeliculaCard
               pelicula={item}
-              onToggleEstado={(id) => dispatch(cambiarEstadoPelicula(id))}
               onPress={() =>
-                navigation.navigate('DetallePelicula', { peliculaId: item.id })
+                navigation.navigate('DetallePelicula', {
+                  peliculaId: item.id,
+                })
               }
             />
           )}
