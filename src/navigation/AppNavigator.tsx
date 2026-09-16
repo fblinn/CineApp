@@ -11,6 +11,7 @@ import MapaAsientosScreen from '@/screens/MapaAsientosScreen';
 import FormularioVenta from '@/screens/FormularioVenta';
 import { Pelicula } from '@/types/pelicula';
 import { colors } from '@/theme';
+import GeneradorQR from '@/screens/GeneradorQR';
 
 // Rutas de la app. Cuando se agregue la biometría, el paso de "Catalogo" a
 // "GestionPeliculas" se intercepta ahí antes de navegar.
@@ -59,6 +60,7 @@ export default function AppNavigator() {
         <Stack.Screen name="DetallePelicula" component={DetallePelicula} />
         <Stack.Screen name="SeleccionAsientos" component={MapaAsientosScreen} />
         <Stack.Screen name="FormularioVenta" component={FormularioVenta} />
+        <Stack.Screen name="GeneradorQR" component={GeneradorQR} />
       </Stack.Navigator>
     </NavigationContainer>
   );

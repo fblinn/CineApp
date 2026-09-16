@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
@@ -38,6 +38,12 @@ export default function GeneradorQR({ route, navigation }: Props) {
       <Text style={styles.codigo} selectable>
         Código: {reserva.id}
       </Text>
+
+      <TouchableOpacity
+        style={styles.botonSecundario}
+        onPress={() => navigation.goBack()}>
+        <Text style={styles.botonSecundarioTexto}>Volver</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -74,5 +80,17 @@ const styles = StyleSheet.create({
   codigo: {
     color: colors.textMuted,
     fontSize: typography.tiny,
+  },
+  botonSecundario: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+  },
+  botonSecundarioTexto: {
+    color: colors.textPrimary,
+    fontSize: typography.small,
+    fontWeight: '600',
   },
 });
