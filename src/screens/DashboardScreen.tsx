@@ -48,7 +48,7 @@ export default function DashboardScreen({ navigation }: Props) {
   const asientosDisponibles = Math.max(capacidadTotal - asientosOcupados, 0);
 
   const ingresosGenerados = useMemo(
-    () => reservas.reduce((acc, r) => acc + r.total, 0),
+    () => reservas.reduce((acc, r) => acc + r.monto, 0),
     [reservas]
   );
 
