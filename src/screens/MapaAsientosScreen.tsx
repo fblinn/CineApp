@@ -57,7 +57,7 @@ function generarSala(
 // ---------- Componente / Pantalla ----------
 
 export default function SeleccionAsientosScreen({ navigation, route }: Props) {
-  const { funcionId, pelicula } = route.params;
+  const { funcionId, pelicula, fecha, hora } = route.params;
 
   const asientosOcupados = useAppSelector(
     (state) => state.asientos.ocupadosPorFuncion[funcionId] ?? []
@@ -107,10 +107,6 @@ export default function SeleccionAsientosScreen({ navigation, route }: Props) {
   function confirmarCompra() {
     if (seleccionados.length === 0) return;
 
-    // Pasamos solo los IDs (strings), no los objetos Asiento completos.
-    // OJO: aquí NO marcamos como ocupados todavía — eso se hace hasta que
-    // se confirme la venta en FormularioVenta, para no "reservar" asientos
-    // si el usuario se arrepiente antes de pagar.
     const ids = Array.from(seleccionadosIds);
 
     navigation.navigate("FormularioVenta", {
@@ -118,6 +114,9 @@ export default function SeleccionAsientosScreen({ navigation, route }: Props) {
       pelicula,
       asientos: ids,
       total,
+      fecha,                        // <-- agregar
+      hora,                         // <-- agregar
+      sala: pelicula.salaAsignada,  // <-- agregar
     });
   }
 

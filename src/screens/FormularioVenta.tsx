@@ -8,7 +8,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Modal,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/AppNavigator';
@@ -16,8 +15,7 @@ import { colors, radius, spacing, typography } from '@/theme';
 import { useAppDispatch } from '@/redux/hooks';
 import { agregarReserva } from '@/redux/slices/reservasSlice';
 import { marcarAsientosOcupados } from '@/redux/slices/asientoSlice';
-import 'react-native-get-random-values'; 
-
+import 'react-native-get-random-values';
 
 // ---------- Tipos ----------
 
@@ -85,8 +83,6 @@ export default function FormularioVenta({ navigation, route }: Props) {
 
   const [valores, setValores] = useState<FormState>(VALOR_INICIAL);
   const [errores, setErrores] = useState<Errores>({});
-  const [modalVisible, setModalVisible] = useState(false);
-  const [codigoGenerado, setCodigoGenerado] = useState<string | null>(null);
 
   function actualizarCampo(campo: CampoTexto, valor: string) {
     setValores((prev) => ({ ...prev, [campo]: valor }));
@@ -94,11 +90,6 @@ export default function FormularioVenta({ navigation, route }: Props) {
       setErrores((prev) => ({ ...prev, [campo]: undefined }));
     }
   }
-
-  function confirmarVenta() {
-  if (!validarFormulario()) return;
-
-  const idBoleto = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   function validarFormulario(): boolean {
     const nuevosErrores: Errores = {};
@@ -113,7 +104,8 @@ export default function FormularioVenta({ navigation, route }: Props) {
   function confirmarVenta() {
     if (!validarFormulario()) return;
 
-    // 1. Guardamos la reserva/venta en el store.
+    const idBoleto = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
     dispatch(
       agregarReserva({
         id: idBoleto,
@@ -131,12 +123,6 @@ export default function FormularioVenta({ navigation, route }: Props) {
 
     dispatch(marcarAsientosOcupados({ funcionId, asientos }));
     navigation.replace('GeneradorQR', { reservaId: idBoleto });
-    setModalVisible(true);
-  }
-
-  function cerrarModalYSalir() {
-    setModalVisible(false);
-    navigation.popToTop();
   }
 
   return (
@@ -192,32 +178,6 @@ export default function FormularioVenta({ navigation, route }: Props) {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={cerrarModalYSalir}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalTarjeta}>
-            <Text style={styles.modalTitulo}>Compra confirmada</Text>
-            <Text style={styles.modalTexto}>
-              Se compraron {asientos.length} asiento
-              {asientos.length > 1 ? 's' : ''} por ${total.toFixed(2)}.
-            </Text>
-            <Text style={styles.modalSubtexto}>
-              {pelicula.nombre} · Asientos: {asientos.join(', ')}
-            </Text>
-            <TouchableOpacity
-              style={styles.modalBoton}
-              onPress={cerrarModalYSalir}
-            >
-              <Text style={styles.modalBotonTexto}>Aceptar y ver QR</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -316,51 +276,4 @@ const styles = StyleSheet.create({
     fontSize: typography.small,
     fontWeight: '700',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.75)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  modalTarjeta: {
-    width: '100%',
-    backgroundColor: colors.bgElevated,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderSubtle,
-    padding: spacing.lg,
-    alignItems: 'center',
-  },
-  modalTitulo: {
-    color: colors.textPrimary,
-    fontSize: typography.title,
-    fontWeight: '700',
-    marginBottom: spacing.sm,
-    textAlign: 'center',
-  },
-  modalTexto: {
-    color: colors.textPrimary,
-    fontSize: typography.body,
-    textAlign: 'center',
-    marginBottom: spacing.xs,
-  },
-  modalSubtexto: {
-    color: colors.textMuted,
-    fontSize: typography.small,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  modalBoton: {
-    backgroundColor: colors.red,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: radius.sm,
-    marginTop: spacing.sm,
-  },
-  modalBotonTexto: {
-    color: '#fff',
-    fontSize: typography.small,
-    fontWeight: '700',
-  },
-});}
+});

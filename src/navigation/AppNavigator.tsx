@@ -22,9 +22,7 @@ export type RootStackParamList = {
   Escaner: undefined;
   Funciones: { peliculaId: string };
   DetallePelicula: { peliculaId: string };
-  SeleccionAsientos: {
-  funcionId: string;
-  pelicula: Pelicula;};
+  SeleccionAsientos: { funcionId: string; pelicula: Pelicula; fecha: string; hora: string;};
   FormularioVenta: { funcionId: string; pelicula: Pelicula; asientos: string[]; total: number; fecha: string; hora: string; sala: string; };
   GeneradorQR: { reservaId: string };
 };
@@ -60,10 +58,7 @@ export default function AppNavigator() {
          <Stack.Screen name="Escaner" component={EscanerScreen} />
         <Stack.Screen name="DetallePelicula" component={DetallePelicula} />
         <Stack.Screen name="SeleccionAsientos" component={MapaAsientosScreen} />
-        <Stack.Screen
-          name="FormularioVenta"
-          component={FormularioVenta as React.ComponentType<any>}
-        />
+        <Stack.Screen name="FormularioVenta" component={FormularioVenta} />
       </Stack.Navigator>
     </NavigationContainer>
   );
