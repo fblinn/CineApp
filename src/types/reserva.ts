@@ -4,7 +4,7 @@ export interface Reserva {
   id: string;
   peliculaId: string;
   sala: string;
-  fecha: string;
+  fecha: string; // fecha de la funcion
   hora: string;
   asientos: string[];
   clienteNombre: string;

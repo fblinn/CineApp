@@ -10,7 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import { Alert } from 'react-native';
-import { autenticarPersonal } from '@/utils/biometria';
+//import { autenticarPersonal, obtenerTiposBiometricosDisponibles } from '@/utils/biometria';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { colors, radius, spacing, typography } from '@/theme';
 import PeliculaCard from '@/components/PeliculaCard';
@@ -64,17 +64,6 @@ export default function IndexScreen({ navigation }: Props) {
       return coincideBusqueda && coincideGenero && coincideClasificacion && coincideSala;
     });
   }, [peliculas, busqueda, filtroGenero, filtroClasificacion, filtroSala]);
-
-  // datos biometricos del personal
-  const accederZonaPersonal = async () => {
-    const resultado = await autenticarPersonal();
-
-    if (resultado.exito) {
-      navigation.navigate('GestionPeliculas');
-    } else if (resultado.mensaje) {
-      Alert.alert('Acceso denegado', resultado.mensaje);
-    }
-  };
 
   return (
     <View style={styles.contenedor}>

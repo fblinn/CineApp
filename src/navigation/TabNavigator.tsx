@@ -4,7 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/theme';
-import { autenticarPersonal } from '@/utils/biometria';
+import { autenticarPersonal, obtenerTiposBiometricosDisponibles } from '@/utils/biometria';
 import type { RootStackParamList } from './AppNavigator';
 
 import IndexScreen from '@/screens/Index';
@@ -88,6 +88,7 @@ export default function TabNavigator() {
 
       <Tab.Screen name="MisBoletos" component={MisBoletosStackScreen} options={{ title: 'Mis Boletos' }} />
 
+      {/* Aqui se maneja lo de la biometria para acceder a la zona personal */}
       <Tab.Screen
         name="Admin"
         component={AdminStackScreen}
@@ -95,11 +96,29 @@ export default function TabNavigator() {
           tabPress: (e) => {
             e.preventDefault();
 
-            autenticarPersonal().then((resultado) => {
-              if (resultado.exito) {
-                navigation.navigate('Admin');
-              } else if (resultado.mensaje) {
-                Alert.alert('Acceso denegado', resultado.mensaje);
+            obtenerTiposBiometricosDisponibles().then((tiposDisponibles) => {
+              const ejecutarAutenticacion = (tipo?: 'huella' | 'faceid') => {
+                autenticarPersonal(tipo).then((resultado) => {
+                  if (resultado.exito) {
+                    navigation.navigate('Admin');
+                  } else if (resultado.mensaje) {
+                    Alert.alert('Acceso denegado', resultado.mensaje);
+                  }
+                });
+              };
+
+              if (tiposDisponibles.length > 1) {
+                Alert.alert(
+                  'Verificación de identidad',
+                  '¿Con qué quieres verificarte?',
+                  [
+                    { text: 'Huella', onPress: () => ejecutarAutenticacion('huella') },
+                    { text: 'Face ID', onPress: () => ejecutarAutenticacion('faceid') },
+                    { text: 'Cancelar', style: 'cancel' },
+                  ]
+                );
+              } else {
+                ejecutarAutenticacion(tiposDisponibles[0]);
               }
             });
           },

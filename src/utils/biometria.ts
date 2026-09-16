@@ -5,10 +5,28 @@ export interface ResultadoAutenticacion {
   mensaje?: string;
 }
 
+export type TipoBiometria = 'huella' | 'faceid';
+
+// Revisa qué modalidades biométricas tiene enroladas el dispositivo
+export async function obtenerTiposBiometricosDisponibles(): Promise<TipoBiometria[]> {
+  const tipos = await LocalAuthentication.supportedAuthenticationTypesAsync();
+  const disponibles: TipoBiometria[] = [];
+
+  if (tipos.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)) {
+    disponibles.push('huella');
+  }
+  if (tipos.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
+    disponibles.push('faceid');
+  }
+
+  return disponibles;
+}
+
 // Pide autenticación biométrica (huella o Face ID, lo que el dispositivo
-// tenga configurado — el sistema operativo decide cuál usar, no nosotros).
-// Se usa como "llave" para entrar a la Zona de Personal (Módulo B del doc).
-export async function autenticarPersonal(): Promise<ResultadoAutenticacion> {
+// tenga configurado el sistema operativo decide cuál usar, no nosotros).
+export async function autenticarPersonal(
+  tipoPreferido?: TipoBiometria
+): Promise<ResultadoAutenticacion> {
   const tieneHardware = await LocalAuthentication.hasHardwareAsync();
   if (!tieneHardware) {
     return {
@@ -26,11 +44,28 @@ export async function autenticarPersonal(): Promise<ResultadoAutenticacion> {
     };
   }
 
+  // Si se pidió un tipo específico, confirma que esté enrolado antes de lanzar el prompt
+  if (tipoPreferido) {
+    const disponibles = await obtenerTiposBiometricosDisponibles();
+    if (!disponibles.includes(tipoPreferido)) {
+      return {
+        exito: false,
+        mensaje:
+          tipoPreferido === 'faceid'
+            ? 'Este dispositivo no tiene Face ID configurado.'
+            : 'Este dispositivo no tiene huella configurada.',
+      };
+    }
+  }
+
   const resultado = await LocalAuthentication.authenticateAsync({
-    promptMessage: 'Verifica tu identidad para entrar a la Zona de Personal',
+    promptMessage:
+      tipoPreferido === 'faceid'
+        ? 'Verifica tu identidad con Face ID para entrar a la Zona de Personal'
+        : tipoPreferido === 'huella'
+        ? 'Verifica tu identidad con tu huella para entrar a la Zona de Personal'
+        : 'Verifica tu identidad para entrar a la Zona de Personal',
     cancelLabel: 'Cancelar',
-    // No permite caer al PIN/patrón del teléfono como alternativa: exige
-    // específicamente huella o Face ID, que es lo que pide el doc.
     disableDeviceFallback: true,
   });
 

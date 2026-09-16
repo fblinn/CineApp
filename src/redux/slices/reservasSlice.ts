@@ -18,6 +18,7 @@ const reservasSlice = createSlice({
         state.lista.push(action.payload);
       },
       prepare: (datos: ReservaFormData & { id: string }): { payload: Reserva } => ({
+        
         payload: {
           ...datos,
           estado: 'completa',
