@@ -12,7 +12,7 @@ import DetallePelicula from '@/screens/DetallePelicula';
 import MapaAsientosScreen from '@/screens/MapaAsientosScreen';
 import FormularioVenta from '@/screens/FormularioVenta';
 import GeneradorQR from '@/screens/GeneradorQR';
-import HistorialBoletos from '@/screens/HistorialBoletos';
+import HistorialBoletos from '@/screens/HistorialScreen';
 
 import PeliculasScreen from '@/screens/PeliculasScreen';
 import CrearFuncionScreen from '@/screens/CrearFuncionScreen';

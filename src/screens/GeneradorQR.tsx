@@ -41,7 +41,7 @@ export default function GeneradorQR({ route, navigation }: Props) {
 
       <TouchableOpacity
         style={styles.botonSecundario}
-        onPress={() => navigation.goBack()}>
+        onPress={() => navigation.navigate('Catalogo')}>
         <Text style={styles.botonSecundarioTexto}>Volver</Text>
       </TouchableOpacity>
     </View>
