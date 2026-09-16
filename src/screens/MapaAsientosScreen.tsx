@@ -59,8 +59,11 @@ function generarSala(
 export default function SeleccionAsientosScreen({ navigation, route }: Props) {
   const { funcionId, pelicula, fecha, hora } = route.params;
 
+  const ARRAY_VACIO: string[] = []; // o el tipo que corresponda a tus asientos ocupados
+
+  // ...dentro del componente:
   const asientosOcupados = useAppSelector(
-    (state) => state.asientos.ocupadosPorFuncion[funcionId] ?? []
+    (state) => state.asientos.ocupadosPorFuncion[funcionId] ?? ARRAY_VACIO
   );
 
   const noDisponible = pelicula.estado === "no disponible";
